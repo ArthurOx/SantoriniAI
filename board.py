@@ -129,8 +129,43 @@ class Board:
         x, y = coords
         return self._board[x, y]
 
-    def get_legal_moves(self):
-        pass
+    def get_legal_moves(self, player):
+        """
+        Returns a list of legal moves for given player for this board state
+        """
+        # Generate all legal moves
+        move_list = []
+        if self._phase == GamePhase.SETUP:
+            for x in range(BOARD_SIZE):
+                for y in range(BOARD_SIZE):
+                    move = Move(self._board[x, y])
+                    if self._check_setup_valid(move):
+                        move_list.append(move)
+        elif self._phase == GamePhase.MOVE:
+            for piece in [player.first_piece, player.second_piece]:
+                x = piece.tile.x
+                y = piece.tile.y
+                adjacent = self.get_adjacent_tiles(x, y)
+                for tile in adjacent:
+                    move = Move(self._board[tile.x, tile.y], piece)
+                    if self._check_move_valid(player, move):
+                        move_list.append(move)
+        elif self._phase == GamePhase.BUILD:
+            for piece in [player.first_piece, player.second_piece]:
+                x = piece.tile.x
+                y = piece.tile.y
+                adjacent = self.get_adjacent_tiles(x, y)
+                for tile in adjacent:
+                    move = Move(self._board[tile.x, tile.y], piece)
+                    if self._check_build_valid(player, move):
+                        move_list.append(move)
+        return move_list
+
+    def get_height(self, x: int, y: int):
+        return self._board[x, y].height
+
+
+
 
     def __str__(self):
         board = '|@@@|@@@|@@@|@@@|@@@|\n'
