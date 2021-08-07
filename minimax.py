@@ -1,8 +1,6 @@
-import numpy as np
 import abc
 from board import *
 from player import Player
-from move import Move
 import util
 import math
 
@@ -22,6 +20,7 @@ class Agent(object):
     def stop_running(self):
         pass
 
+
 class MultiAgentSearchAgent(Agent):
     def __init__(self, evaluation_function='scoreEvaluationFunction', depth=2):
         self.evaluation_function = util.lookup(evaluation_function, globals())
@@ -30,6 +29,7 @@ class MultiAgentSearchAgent(Agent):
     @abc.abstractmethod
     def get_action(self, game_state, player):
         return
+
 
 def tile_value(game_state, x: int, y: int):
     if not Board._is_in_grid(game_state, x, y):
@@ -48,6 +48,7 @@ def tile_value(game_state, x: int, y: int):
             return 2
         else:
             return 4
+
 
 def evaluation_function(game_state):
     score = 0
@@ -83,11 +84,12 @@ class MinMax(MultiAgentSearchAgent):
                 evaluation = min(evaluation, score)
             return evaluation
 
+
 class AlphaBeta(MultiAgentSearchAgent):
     def get_action(self, game_state, player: Player):
-        return self.AlphaBeta_helper(game_state, player, self.depth * 2, -math.inf, math.inf)
+        return self.alpha_beta_helper(game_state, player, self.depth * 2, -math.inf, math.inf)
 
-    def AlphaBeta_helper(self, game_state, player, depth, alpha, beta):
+    def alpha_beta_helper(self, game_state, player, depth, alpha, beta):
         if depth == 0:
             evaluation = self.evaluation_function(game_state)
             return evaluation
@@ -97,7 +99,7 @@ class AlphaBeta(MultiAgentSearchAgent):
         if player == MAX_PLAYER:
             evaluation = -math.inf
             for move in legal_moves:
-                score = self.AlphaBeta_helper(game_state.do_move(player, move), MIN_PLAYER, depth - 1, alpha, beta)
+                score = self.alpha_beta_helper(game_state.do_move(player, move), MIN_PLAYER, depth - 1, alpha, beta)
                 evaluation = max(evaluation, score)
                 alpha = max(alpha, evaluation)
                 if alpha >= beta:
@@ -106,7 +108,7 @@ class AlphaBeta(MultiAgentSearchAgent):
         else:
             evaluation = math.inf
             for move in legal_moves:
-                score = self.AlphaBeta_helper(game_state.do_move(player, move), MAX_PLAYER, depth - 1, alpha, beta)
+                score = self.alpha_beta_helper(game_state.do_move(player, move), MAX_PLAYER, depth - 1, alpha, beta)
                 evaluation = min(evaluation, score)
                 beta = min(beta, evaluation)
                 if beta <= alpha:

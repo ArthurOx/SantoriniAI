@@ -21,7 +21,7 @@ class Board:
         self._players_set = 0
 
     def add_move(self, player: Player, move: Move):
-        if not self.check_action_valid(player, move):
+        if not self.is_action_valid(player, move):
             raise ValueError("Move is not allowed")
 
         if self._phase == GamePhase.SETUP:
@@ -38,22 +38,22 @@ class Board:
             self._phase = GamePhase.MOVE
             return self.do_build(player, move)
 
-    def check_action_valid(self, player: Player, move: Move):
+    def is_action_valid(self, player: Player, move: Move):
         if self._phase == GamePhase.SETUP:
-            return self._check_setup_valid(move)
+            return self._is_setup_valid(move)
         if self._phase == GamePhase.MOVE:
-            return self._check_move_valid(player, move)
+            return self._is_move_valid(player, move)
         if self._phase == GamePhase.BUILD:
-            return self._check_build_valid(player, move)
+            return self._is_build_valid(player, move)
         return False
 
-    def _check_setup_valid(self, move: Move):
+    def _is_setup_valid(self, move: Move):
         if not self._is_in_grid(move.x, move.y) or \
                 self.is_occupied(move.x, move.y):
             return False
         return True
 
-    def _check_move_valid(self, player: Player, move: Move):
+    def _is_move_valid(self, player: Player, move: Move):
         if not self._is_in_grid(move.x, move.y) or \
                 self.is_occupied(move.x, move.y) or \
                 self.is_dome(move.x, move.y) or \
@@ -65,7 +65,7 @@ class Board:
             return False
         return True
 
-    def _check_build_valid(self, player: Player, move: Move):
+    def _is_build_valid(self, player: Player, move: Move):
         if not self._is_in_grid(move.x, move.y) or \
                 self.is_occupied(move.x, move.y) or \
                 self.is_dome(move.x, move.y) or \
@@ -129,36 +129,50 @@ class Board:
         x, y = coords
         return self._board[x, y]
 
+    def _setup_legal_moves(self, player):
+        move_list = []
+        if player.first_piece and player.second_piece:
+            return move_list
+        for x in range(BOARD_SIZE):
+            for y in range(BOARD_SIZE):
+                move = Move(self._board[x, y])
+                if self._is_setup_valid(move):
+                    move_list.append(move)
+        return move_list
+
+    def _move_legal_moves(self, player):
+        move_list = []
+        for piece in [player.first_piece, player.second_piece]:
+            x, y = piece.tile.x, piece.tile.y
+            adjacent = self.get_adjacent_tiles(x, y)
+            for tile in adjacent:
+                move = Move(tile, piece)
+                if self._is_move_valid(player, move):
+                    move_list.append(move)
+        return move_list
+
+    def _build_legal_moves(self, player):
+        move_list = []
+        for piece in [player.first_piece, player.second_piece]:
+            x, y = piece.tile.x, piece.tile.y
+            adjacent = self.get_adjacent_tiles(x, y)
+            for tile in adjacent:
+                move = Move(tile, piece)
+                if self._is_build_valid(player, move):
+                    move_list.append(move)
+        return move_list
+
     def get_legal_moves(self, player):
         """
         Returns a list of legal moves for given player for this board state
         """
-        # Generate all legal moves
         move_list = []
         if self._phase == GamePhase.SETUP:
-            for x in range(BOARD_SIZE):
-                for y in range(BOARD_SIZE):
-                    move = Move(self._board[x, y])
-                    if self._check_setup_valid(move):
-                        move_list.append(move)
+            return self._setup_legal_moves(player)
         elif self._phase == GamePhase.MOVE:
-            for piece in [player.first_piece, player.second_piece]:
-                x = piece.tile.x
-                y = piece.tile.y
-                adjacent = self.get_adjacent_tiles(x, y)
-                for tile in adjacent:
-                    move = Move(self._board[tile.x, tile.y], piece)
-                    if self._check_move_valid(player, move):
-                        move_list.append(move)
+            return self._move_legal_moves(player)
         elif self._phase == GamePhase.BUILD:
-            for piece in [player.first_piece, player.second_piece]:
-                x = piece.tile.x
-                y = piece.tile.y
-                adjacent = self.get_adjacent_tiles(x, y)
-                for tile in adjacent:
-                    move = Move(self._board[tile.x, tile.y], piece)
-                    if self._check_build_valid(player, move):
-                        move_list.append(move)
+            return self._build_legal_moves(player)
         return move_list
 
     def get_height(self, x: int, y: int):
