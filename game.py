@@ -1,7 +1,7 @@
 from board import *
 from player import Player
 from move import Move
-
+from minimax import *
 
 class GameEngine:
     def __init__(self):
@@ -89,6 +89,30 @@ class GameEngine:
             print(self.board)
             self.board.add_move(player_2, Move(self.board[4, 3], piece_2_p2))
             print(self.board)
+
+    def play_agents_versus(self, agent_1: Agent, agent_2: Agent):
+        player_1, player_2 = Player(1), Player(2)
+        # Setup p1
+        move_1 = agent_1.get_action(self.board, player_1)
+        self.board.add_move(player_1, move_1)
+        move_2 = agent_1.get_action(self.board, player_1)
+        self.board.add_move(player_1, move_2)
+
+        # Setup p2
+        move_3 = agent_2.get_action(self.board, player_2)
+        self.board.add_move(player_2, move_3)
+        move_4 = agent_2.get_action(self.board, player_2)
+        self.board.add_move(player_2, move_4)
+
+        current_player = player_1
+        current_agent = agent_1
+        while not self.is_winner(player_1) and not self.is_winner(player_2):
+            move = agent_1.get_action(self.board, current_player)
+            if not move:
+                break
+            self.board.add_move(current_player, move)
+            current_player = player_2 if current_player == player_1 else player_1
+            current_agent = agent_2 if current_agent == agent_1 else agent_1
 
 
 if __name__ == "__main__":
