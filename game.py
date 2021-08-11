@@ -107,7 +107,7 @@ class GameEngine:
         current_player = player_1
         current_agent = agent_1
         while not self.is_winner(player_1) and not self.is_winner(player_2):
-            move = agent_1.get_action(self.board, current_player)
+            move = current_agent.get_action(self.board, current_player)
             if not move:
                 break
             self.board.add_move(current_player, move)
