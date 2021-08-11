@@ -9,6 +9,10 @@ MAX_PLAYER = 0
 MIN_PLAYER = 1
 BOARD_SIZE = 5
 
+SETUP = 0
+MOVE = 1
+BUILD = 2
+
 
 class Agent(object):
     def __init__(self):
@@ -51,6 +55,30 @@ def tile_value(game_state, x: int, y: int):
             return 4
 
 
+def height_heuristic(game_state, x_1, y_1, x_2, y_2):
+    score = 0
+    score += Board.get_height(game_state, x_1, y_1) * tile_value(game_state, x_1, y_1)
+    score += Board.get_height(game_state, x_2, y_2) * tile_value(game_state, x_2, y_2)
+    return score
+
+
+def dis_heuristic(x_1, y_1, x_2, y_2, s_x_1, s_y_1, s_x_2, s_y_2):
+    score = util.manhattanDistance([x_1, y_1], [s_x_1, s_y_1]) + \
+            util.manhattanDistance([x_1, y_1], [s_x_2, s_y_2]) + util.manhattanDistance([x_2, y_2],
+                                                                                        [s_x_2,
+                                                                                         s_y_2]) + util.manhattanDistance(
+        [x_2, y_2], [s_x_1, s_y_1])
+    score -= min((util.manhattanDistance([x_1, y_1], [s_x_1, s_y_1]) +
+                  util.manhattanDistance([x_2, y_2], [s_x_1, s_y_1])),
+                 (util.manhattanDistance([x_1, y_1], [s_x_2, s_y_2]) +
+                  util.manhattanDistance([x_2, y_2], [s_x_2, s_y_2])))
+    return score
+
+
+def setup_heuristic():
+    pass
+
+
 def evaluation_function(game_state, player):
     score = 0
     x_1 = player.first_piece.tile.x
@@ -62,74 +90,90 @@ def evaluation_function(game_state, player):
     s_y_1 = second_player.first_piece.tile.y
     s_x_2 = second_player.second_piece.tile.x
     s_y_2 = second_player.second_piece.tile.y
-    # for i in range(BOARD_SIZE):
-    #     for j in range(BOARD_SIZE):
-    #         score += Board.get_height(game_state, i, j) * tile_value(game_state, i, j)
-    score += Board.get_height(game_state, x_1, y_1) * tile_value(game_state, x_1, y_1)
-    score += Board.get_height(game_state, x_2, y_2) * tile_value(game_state, x_2, y_2)
-    dist_score = util.manhattanDistance([x_1, y_1], [s_x_1, s_y_1]) + \
-                 util.manhattanDistance([x_1, y_1], [s_x_2, s_y_2]) + util.manhattanDistance([x_2, y_2],
-                                                                                             [s_x_2, s_y_2]) + \
-                 util.manhattanDistance([x_2, y_2], [s_x_1, s_y_1])
-    dist_score -= min((util.manhattanDistance([x_1, y_1], [s_x_1, s_y_1]) +
-                       util.manhattanDistance([x_2, y_2], [s_x_1, s_y_1])),
-                      (util.manhattanDistance([x_1, y_1], [s_x_2, s_y_2]) +
-                       util.manhattanDistance([x_2, y_2], [s_x_2, s_y_2])))
-    score += dist_score
+    if Board.get_phase(game_state) is SETUP:  # todo think of heuristic
+        return score
+    elif Board.get_phase(game_state) is MOVE:
+        score += height_heuristic(game_state, x_1, y_1, x_2, y_2)
+    elif Board.get_phase(game_state) is BUILD:
+        score += height_heuristic(game_state, x_1, y_1, x_2, y_2)
+        score += dis_heuristic(x_1, y_1, x_2, y_2, s_x_1, s_y_1,
+                               s_x_2, s_y_2)
     return score
 
 
 class MinMax(MultiAgentSearchAgent):
-    def get_action(self, game_state, player: Player):
+    # def __init__(self):
+    def get_action(self, game_state, player):
+        return self.mini_max(game_state, player)[1]
+
+    def mini_max(self, game_state, player: Player):
         return self.minimax_helper(game_state, player, self.depth * 2)
 
     def minimax_helper(self, game_state, player, depth):
         if depth == 0:
             evaluation = self.evaluation_function(game_state, player)
-            return evaluation
+            return evaluation, None
+        max_move = None
         legal_moves = game_state.get_legal_moves(player)
         if not legal_moves:
-            return 0
+            return 0, None
         if player == MAX_PLAYER:
             evaluation = -math.inf
             for move in legal_moves:
                 score = self.minimax_helper(game_state.do_move(player, move), MIN_PLAYER, depth - 1)
-                evaluation = max(evaluation, score)
-            return evaluation
+                # evaluation = max(evaluation, score)
+                if score > evaluation:
+                    evaluation = score
+                    max_move = move
+            return evaluation, max_move
         else:
             evaluation = math.inf
             for move in legal_moves:
                 score = self.minimax_helper(game_state.do_move(player, move), MAX_PLAYER, depth - 1)
-                evaluation = min(evaluation, score)
-            return evaluation
+                # evaluation = min(evaluation, score)
+                if score < evaluation:
+                    evaluation = score
+                    max_move = move
+            return evaluation, max_move
 
 
 class AlphaBeta(MultiAgentSearchAgent):
-    def get_action(self, game_state, player: Player):
+    def get_action(self, game_state, player):
+        return self.AlphaBeta(game_state, player)[1]
+
+    def AlphaBeta(self, game_state, player: Player):
         return self.AlphaBeta_helper(game_state, player, self.depth * 2, -math.inf, math.inf)
 
     def AlphaBeta_helper(self, game_state, player, depth, alpha, beta):
         if depth == 0:
             evaluation = self.evaluation_function(game_state, player)
-            return evaluation
+            return evaluation, None
         legal_moves = game_state.get_legal_moves(player)
         if not legal_moves:
-            return 0
+            return 0, None
         if player == MAX_PLAYER:
             evaluation = -math.inf
+            max_move = None
             for move in legal_moves:
                 score = self.AlphaBeta_helper(game_state.do_move(player, move), MIN_PLAYER, depth - 1, alpha, beta)
-                evaluation = max(evaluation, score)
+                # evaluation = max(evaluation, score)
+                if score > evaluation:
+                    evaluation = score
+                    max_move = move
                 alpha = max(alpha, evaluation)
                 if alpha >= beta:
                     break
-            return evaluation
+            return evaluation, max_move
         else:
             evaluation = math.inf
+            min_move = None
             for move in legal_moves:
                 score = self.AlphaBeta_helper(game_state.do_move(player, move), MAX_PLAYER, depth - 1, alpha, beta)
-                evaluation = min(evaluation, score)
+                # evaluation = min(evaluation, score)
+                if score < evaluation:
+                    evaluation = score
+                    min_move = move
                 beta = min(beta, evaluation)
                 if beta <= alpha:
                     break
-            return evaluation
+            return evaluation, min_move
