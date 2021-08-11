@@ -14,6 +14,12 @@ class GamePhase(Enum):
     BUILD = 2
 
 
+def is_in_board(x: int, y: int):
+    if x < 0 or y < 0 or x >= BOARD_SIZE or y >= BOARD_SIZE:
+        return False
+    return True
+
+
 class Board:
     def __init__(self):
         self._board = np.array([[Tile(j, i) for i in range(BOARD_SIZE)] for j in range(BOARD_SIZE)])
@@ -48,13 +54,13 @@ class Board:
         return False
 
     def _is_setup_valid(self, move: Move):
-        if not self._is_in_grid(move.x, move.y) or \
+        if not is_in_board(move.x, move.y) or \
                 self.is_occupied(move.x, move.y):
             return False
         return True
 
     def _is_move_valid(self, player: Player, move: Move):
-        if not self._is_in_grid(move.x, move.y) or \
+        if not is_in_board(move.x, move.y) or \
                 self.is_occupied(move.x, move.y) or \
                 self.is_dome(move.x, move.y) or \
                 self._is_illegal_climb(move) or \
@@ -66,7 +72,7 @@ class Board:
         return True
 
     def _is_build_valid(self, player: Player, move: Move):
-        if not self._is_in_grid(move.x, move.y) or \
+        if not is_in_board(move.x, move.y) or \
                 self.is_occupied(move.x, move.y) or \
                 self.is_dome(move.x, move.y) or \
                 player.moved_piece != move.piece or \
@@ -91,14 +97,9 @@ class Board:
         adjacent = []
         for i in [-1, 0, 1]:
             for j in [-1, 0, 1]:
-                if self._is_in_grid(x + i, y + j) and not (i == 0 and j == 0):
+                if is_in_board(x + i, y + j) and not (i == 0 and j == 0):
                     adjacent.append(self._board[x + i, y + j])
         return adjacent
-
-    def _is_in_grid(self, x: int, y: int):
-        if x < 0 or y < 0 or x >= BOARD_SIZE or y >= BOARD_SIZE:
-            return False
-        return True
 
     def do_setup(self, player: Player, move: Move):
         if not player.first_piece:
@@ -177,9 +178,6 @@ class Board:
 
     def get_height(self, x: int, y: int):
         return self._board[x, y].height
-
-
-
 
     def __str__(self):
         board = '|@@@|@@@|@@@|@@@|@@@|\n'
