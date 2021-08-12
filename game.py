@@ -1,7 +1,20 @@
+import minimax
 from board import *
 from player import Player
-from move import Move
+from move import *
 from minimax import *
+import abc
+
+class Agent(object):
+    def __init__(self):
+        super(Agent, self).__init__()
+
+    @abc.abstractmethod
+    def get_action(self, game_state, player):
+        return
+
+    def stop_running(self):
+        pass
 
 class GameEngine:
     def __init__(self):
@@ -90,6 +103,23 @@ class GameEngine:
             self.board.add_move(player_2, Move(self.board[4, 3], piece_2_p2))
             print(self.board)
 
+
+    def minimax_test(self, minmax : MinMax):
+        player_1, player_2 = Player(1), Player(2)
+        piece_1_p1 = self.board.add_move(player_1, Move(self.board[0, 0]))
+        print(self.board)
+        piece_2_p1 = self.board.add_move(player_1, Move(self.board[2, 2]))
+        print(self.board)
+        piece_1_p2 = self.board.add_move(player_2, Move(self.board[3, 3]))
+        print(self.board)
+        piece_2_p2 = self.board.add_move(player_2, Move(self.board[4, 3]))
+
+        cur_player = player_1
+        while not self.is_winner(player_1) and not self.is_winner(player_2):
+            move = MinMax.get_action(minmax, self.board, cur_player)
+            self.board.add_move(cur_player, move)
+            cur_player = player_2 if cur_player == player_1 else player_1
+
     def play_agents_versus(self, agent_1: Agent, agent_2: Agent):
         player_1, player_2 = Player(1), Player(2)
         # Setup p1
@@ -114,7 +144,8 @@ class GameEngine:
             current_player = player_2 if current_player == player_1 else player_1
             current_agent = agent_2 if current_agent == agent_1 else agent_1
 
-
 if __name__ == "__main__":
     game = GameEngine()
     game.play_test()
+    game.minimax_test()
+

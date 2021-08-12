@@ -37,6 +37,15 @@ class MultiAgentSearchAgent(Agent):
 
 
 def tile_value(game_state, x: int, y: int):
+    """
+    the tiles in the middle have higher value while the ones on the edge have lower value
+    the values of each tile are as follow:
+    1||1||1||1||1
+    1||2||2||2||1
+    1||2||4||2||1
+    1||2||2||2||1
+    1||1||1||1||1
+    """
     if Board._is_in_grid(game_state, x, y):
         return
     if x == 0 or x == 4:
@@ -56,6 +65,15 @@ def tile_value(game_state, x: int, y: int):
 
 
 def height_heuristic(game_state, x_1, y_1, x_2, y_2):
+    """
+    the player would prefer to head to a higher building
+    :param game_state: the current state
+    :param x_1: first piece
+    :param y_1: first piece
+    :param x_2: second piece
+    :param y_2: second piece
+    :return: score
+    """
     score = 0
     score += Board.get_height(game_state, x_1, y_1) * tile_value(game_state, x_1, y_1)
     score += Board.get_height(game_state, x_2, y_2) * tile_value(game_state, x_2, y_2)
@@ -63,11 +81,22 @@ def height_heuristic(game_state, x_1, y_1, x_2, y_2):
 
 
 def dis_heuristic(x_1, y_1, x_2, y_2, s_x_1, s_y_1, s_x_2, s_y_2):
+    """
+    the player would prefer to build the building away from the second player
+    using manhattan distance
+    :param x_1:
+    :param y_1:
+    :param x_2:
+    :param y_2:
+    :param s_x_1:
+    :param s_y_1:
+    :param s_x_2:
+    :param s_y_2:
+    :return:
+    """
     score = util.manhattanDistance([x_1, y_1], [s_x_1, s_y_1]) + \
-            util.manhattanDistance([x_1, y_1], [s_x_2, s_y_2]) + util.manhattanDistance([x_2, y_2],
-                                                                                        [s_x_2,
-                                                                                         s_y_2]) + util.manhattanDistance(
-        [x_2, y_2], [s_x_1, s_y_1])
+            util.manhattanDistance([x_1, y_1], [s_x_2, s_y_2]) + util.manhattanDistance([x_2, y_2], [s_x_2, s_y_2]) + \
+            util.manhattanDistance([x_2, y_2], [s_x_1, s_y_1])
     score -= min((util.manhattanDistance([x_1, y_1], [s_x_1, s_y_1]) +
                   util.manhattanDistance([x_2, y_2], [s_x_1, s_y_1])),
                  (util.manhattanDistance([x_1, y_1], [s_x_2, s_y_2]) +
@@ -80,6 +109,12 @@ def setup_heuristic():
 
 
 def evaluation_function(game_state, player):
+    """
+
+    :param game_state:
+    :param player:
+    :return:
+    """
     score = 0
     x_1 = player.first_piece.tile.x
     y_1 = player.first_piece.tile.y
@@ -90,6 +125,7 @@ def evaluation_function(game_state, player):
     s_y_1 = second_player.first_piece.tile.y
     s_x_2 = second_player.second_piece.tile.x
     s_y_2 = second_player.second_piece.tile.y
+
     if Board.get_phase(game_state) is SETUP:  # todo think of heuristic
         return score
     elif Board.get_phase(game_state) is MOVE:
@@ -102,7 +138,7 @@ def evaluation_function(game_state, player):
 
 
 class MinMax(MultiAgentSearchAgent):
-    # def __init__(self):
+
     def get_action(self, game_state, player):
         return self.mini_max(game_state, player)[1]
 
