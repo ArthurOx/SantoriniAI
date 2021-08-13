@@ -3,6 +3,7 @@ import abc
 from board import *
 from player import Player
 from agent import Agent
+from heuristics import *
 import util
 import math
 
@@ -26,99 +27,11 @@ class MultiAgentSearchAgent(Agent):
         return
 
 
-def tile_value(x: int, y: int):
-    """
-    the tiles in the middle have higher value while the ones on the edge have lower value
-    the values of each tile are as follow:
-    1||1||1||1||1
-    1||2||2||2||1
-    1||2||4||2||1
-    1||2||2||2||1
-    1||1||1||1||1
-    """
-    if is_in_board(x, y):
-        return
-    if x == 0 or x == 4:
-        return 1
-    if x == 1 or x == 3:
-        if y == 0 or y == 4:
-            return 1
-        else:
-            return 2
-    else:
-        if y == 0 or y == 4:
-            return 1
-        if y == 1 or y == 3:
-            return 2
-        else:
-            return 4
-
-
-def height_heuristic(game_state, x_1, y_1, x_2, y_2):
-    """
-    the player would prefer to head to a higher building
-    :param game_state: the current state
-    :param x_1: first piece
-    :param y_1: first piece
-    :param x_2: second piece
-    :param y_2: second piece
-    :return: score
-    """
-    score = 0
-    score += Board.get_height(game_state, x_1, y_1) * tile_value(x_1, y_1)
-    score += Board.get_height(game_state, x_2, y_2) * tile_value(x_2, y_2)
-    return score
-
-
-def dis_heuristic(x_1, y_1, x_2, y_2, s_x_1, s_y_1, s_x_2, s_y_2):
-    """
-    the player would prefer to build the building away from the second player
-    using manhattan distance
-    """
-    score = util.manhattanDistance([x_1, y_1], [s_x_1, s_y_1]) + \
-            util.manhattanDistance([x_1, y_1], [s_x_2, s_y_2]) + util.manhattanDistance([x_2, y_2], [s_x_2, s_y_2]) + \
-            util.manhattanDistance([x_2, y_2], [s_x_1, s_y_1])
-    score -= min((util.manhattanDistance([x_1, y_1], [s_x_1, s_y_1]) +
-                  util.manhattanDistance([x_2, y_2], [s_x_1, s_y_1])),
-                 (util.manhattanDistance([x_1, y_1], [s_x_2, s_y_2]) +
-                  util.manhattanDistance([x_2, y_2], [s_x_2, s_y_2])))
-    return score
-
-
-def setup_heuristic():
-    pass
-
-
-def evaluation_function(game_state, player):
-    """
-
-    :param game_state:
-    :param player:
-    :return:
-    """
-    score = 0
-    x_1 = player.first_piece.tile.x
-    y_1 = player.first_piece.tile.y
-    x_2 = player.second_piece.tile.x
-    y_2 = player.second_piece.tile.y
-    second_player = np.abs(player - 1)
-    s_x_1 = second_player.first_piece.tile.x
-    s_y_1 = second_player.first_piece.tile.y
-    s_x_2 = second_player.second_piece.tile.x
-    s_y_2 = second_player.second_piece.tile.y
-
-    if Board.get_phase(game_state) is SETUP:  # todo think of heuristic
-        return score
-    elif Board.get_phase(game_state) is MOVE:
-        score += height_heuristic(game_state, x_1, y_1, x_2, y_2)
-    elif Board.get_phase(game_state) is BUILD:
-        score += height_heuristic(game_state, x_1, y_1, x_2, y_2)
-        score += dis_heuristic(x_1, y_1, x_2, y_2, s_x_1, s_y_1,
-                               s_x_2, s_y_2)
-    return score
-
-
 class MinMax(MultiAgentSearchAgent):
+    def __init__(self, player_1: Player, player_2: Player):
+        super().__init__()
+        self.player_1 = player_1
+        self.player_2 = player_2
 
     def get_action(self, game_state, player):
         return self.mini_max(game_state, player)[1]
@@ -128,7 +41,8 @@ class MinMax(MultiAgentSearchAgent):
 
     def minimax_helper(self, game_state, player, depth):
         if depth == 0:
-            evaluation = self.evaluation_function(game_state, player)
+            enemy_player = self.player_1 if player == self.player_2 else self.player_2
+            evaluation = self.evaluation_function(game_state, player, enemy_player)
             return evaluation, None
         max_move = None
         legal_moves = game_state.get_legal_moves(player)
@@ -153,17 +67,26 @@ class MinMax(MultiAgentSearchAgent):
                     max_move = move
             return evaluation, max_move
 
+    def __str__(self):
+        return "Minimax Agent"
+
 
 class AlphaBeta(MultiAgentSearchAgent):
+    def __init__(self, player_1: Player, player_2: Player):
+        super().__init__()
+        self.player_1 = player_1
+        self.player_2 = player_2
+
     def get_action(self, game_state, player):
-        return self.AlphaBeta(game_state, player)[1]
+        return self.alpha_beta(game_state, player)[1]
 
-    def AlphaBeta(self, game_state, player: Player):
-        return self.AlphaBeta_helper(game_state, player, self.depth * 2, -math.inf, math.inf)
+    def alpha_beta(self, game_state, player: Player):
+        return self.alpha_beta_helper(game_state, player, self.depth * 2, -math.inf, math.inf)
 
-    def AlphaBeta_helper(self, game_state, player, depth, alpha, beta):
+    def alpha_beta_helper(self, game_state, player, depth, alpha, beta):
         if depth == 0:
-            evaluation = self.evaluation_function(game_state, player)
+            enemy_player = self.player_1 if player == self.player_2 else self.player_2
+            evaluation = self.evaluation_function(game_state, player, enemy_player)
             return evaluation, None
         legal_moves = game_state.get_legal_moves(player)
         if not legal_moves:
@@ -172,7 +95,7 @@ class AlphaBeta(MultiAgentSearchAgent):
             evaluation = -math.inf
             max_move = None
             for move in legal_moves:
-                score = self.AlphaBeta_helper(game_state.do_move(player, move), MIN_PLAYER, depth - 1, alpha, beta)
+                score = self.alpha_beta_helper(game_state.do_move(player, move), MIN_PLAYER, depth - 1, alpha, beta)
                 # evaluation = max(evaluation, score)
                 if score > evaluation:
                     evaluation = score
@@ -185,7 +108,7 @@ class AlphaBeta(MultiAgentSearchAgent):
             evaluation = math.inf
             min_move = None
             for move in legal_moves:
-                score = self.AlphaBeta_helper(game_state.do_move(player, move), MAX_PLAYER, depth - 1, alpha, beta)
+                score = self.alpha_beta_helper(game_state.do_move(player, move), MAX_PLAYER, depth - 1, alpha, beta)
                 # evaluation = min(evaluation, score)
                 if score < evaluation:
                     evaluation = score
@@ -194,3 +117,6 @@ class AlphaBeta(MultiAgentSearchAgent):
                 if beta <= alpha:
                     break
             return evaluation, min_move
+
+    def __str__(self):
+        return "Alpha Beta Agent"

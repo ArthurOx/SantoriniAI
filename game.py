@@ -66,14 +66,13 @@ class GameEngine:
                 agent_1_wins += 1
             else:
                 agent_2_wins += 1
-        print(f"Rounds: {rounds}. Agent 1 Wins: {agent_1_wins}, Agent 2 Wins: {agent_2_wins}")
+        print(f"Rounds: {rounds}. A1 {agent_1} Wins: {agent_1_wins}, A2 {agent_2} Wins: {agent_2_wins}")
 
 
 if __name__ == "__main__":
     game = GameEngine()
     random_agent_1 = RandomAgent()
     random_agent_2 = RandomAgent()
-    # game.play_test()
     winner = game.play_agents_versus(random_agent_1, random_agent_2, True)
     print(f"Player {winner} won!")
     game.versus_multiple_rounds(random_agent_1, random_agent_2, 1000)

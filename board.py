@@ -29,6 +29,9 @@ class Board:
     def clear(self):
         self.__init__()
 
+    def get_phase(self):
+        return self._phase
+
     def add_move(self, player: Player, move: Move):
         if not self.is_action_valid(player, move):
             raise ValueError("Move is not allowed")
@@ -191,5 +194,4 @@ class Board:
             board += f'Moving...\n'
         elif self._phase == GamePhase.BUILD:
             board += f'Building...\n'
-
         return board

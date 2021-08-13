@@ -43,6 +43,3 @@ class MonteCarloAgent(Agent):
                 available_moves = self.current_board.get_legal_moves(o_player)
                 random_move = available_moves[random.randint(0, len(available_moves) - 1)]
                 self.current_board.do_move(o_player, random_move)
-
-    def stop_running(self):
-        pass
