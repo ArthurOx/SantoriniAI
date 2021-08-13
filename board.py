@@ -26,6 +26,9 @@ class Board:
         self._phase = GamePhase.SETUP
         self._players_set = 0
 
+    def clear(self):
+        self.__init__()
+
     def add_move(self, player: Player, move: Move):
         if not self.is_action_valid(player, move):
             raise ValueError("Move is not allowed")
@@ -184,4 +187,9 @@ class Board:
         for i in range(BOARD_SIZE):
             board += f'|{self[i, 0]}|{self[i, 1]}|{self[i, 2]}|{self[i, 3]}|{self[i, 4]}|\n'
         board += '|@@@|@@@|@@@|@@@|@@@|\n'
+        if self._phase == GamePhase.MOVE:
+            board += f'Moving...\n'
+        elif self._phase == GamePhase.BUILD:
+            board += f'Building...\n'
+
         return board

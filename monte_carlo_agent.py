@@ -1,6 +1,6 @@
 from copy import copy
 
-from minimax import *
+from minimax_agent import *
 import operator
 import random
 

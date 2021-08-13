@@ -1,20 +1,10 @@
-import minimax
+import minimax_agent
 from board import *
 from player import Player
 from move import *
-from minimax import *
-import abc
+from minimax_agent import *
+from random_agent import RandomAgent
 
-class Agent(object):
-    def __init__(self):
-        super(Agent, self).__init__()
-
-    @abc.abstractmethod
-    def get_action(self, game_state, player):
-        return
-
-    def stop_running(self):
-        pass
 
 class GameEngine:
     def __init__(self):
@@ -24,103 +14,14 @@ class GameEngine:
         if player.first_piece and player.second_piece:
             if player.first_piece.tile.height == 3 or \
                     player.second_piece.tile.height == 3:
-                print(f'Player {player} has won!')
-                return True
-        return False
+                return player
+        return None
 
-    def play_test(self):
-        player_1 = Player(1)
-        player_2 = Player(2)
-        while not self.is_winner(player_1) and not self.is_winner(player_2):
-            piece_1_p1 = self.board.add_move(player_1, Move(self.board[0, 0]))
-            print(self.board)
-            piece_2_p1 = self.board.add_move(player_1, Move(self.board[2, 2]))
-            print(self.board)
-            piece_1_p2 = self.board.add_move(player_2, Move(self.board[3, 3]))
-            print(self.board)
-            piece_2_p2 = self.board.add_move(player_2, Move(self.board[4, 3]))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[1, 0], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[1, 1], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[4, 4], piece_2_p2))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[4, 3], piece_2_p2))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[0, 0], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[0, 1], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[3, 4], piece_2_p2))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[4, 4], piece_2_p2))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[0, 1], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[1, 1], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[4, 3], piece_1_p2))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[4, 4], piece_1_p2))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[0, 0], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[0, 1], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[3, 3], piece_1_p2))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[4, 3], piece_1_p2))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[1, 2], piece_2_p1))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[1, 1], piece_2_p1))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[2, 4], piece_2_p2))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[3, 4], piece_2_p2))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[1, 0], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[0, 0], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[3, 4], piece_2_p2))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[2, 4], piece_2_p2))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[0, 0], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[1, 0], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[4, 4], piece_2_p2))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[4, 3], piece_2_p2))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[0, 1], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_1, Move(self.board[0, 0], piece_1_p1))
-            print(self.board)
-            self.board.add_move(player_2, Move(self.board[4, 3], piece_2_p2))
-            print(self.board)
-
-
-    def minimax_test(self, minmax : MinMax):
-        player_1, player_2 = Player(1), Player(2)
-        piece_1_p1 = self.board.add_move(player_1, Move(self.board[0, 0]))
-        print(self.board)
-        piece_2_p1 = self.board.add_move(player_1, Move(self.board[2, 2]))
-        print(self.board)
-        piece_1_p2 = self.board.add_move(player_2, Move(self.board[3, 3]))
-        print(self.board)
-        piece_2_p2 = self.board.add_move(player_2, Move(self.board[4, 3]))
-
-        cur_player = player_1
-        while not self.is_winner(player_1) and not self.is_winner(player_2):
-            move = MinMax.get_action(minmax, self.board, cur_player)
-            self.board.add_move(cur_player, move)
-            cur_player = player_2 if cur_player == player_1 else player_1
-
-    def play_agents_versus(self, agent_1: Agent, agent_2: Agent):
+    """
+    Player 1 plays with Agent 1, 2 with 2.
+    :return winner
+    """
+    def play_agents_versus(self, agent_1: Agent, agent_2: Agent, show_board=False, show_messages=True):
         player_1, player_2 = Player(1), Player(2)
         # Setup p1
         move_1 = agent_1.get_action(self.board, player_1)
@@ -134,18 +35,45 @@ class GameEngine:
         move_4 = agent_2.get_action(self.board, player_2)
         self.board.add_move(player_2, move_4)
 
+        count_moves = 0
         current_player = player_1
         current_agent = agent_1
         while not self.is_winner(player_1) and not self.is_winner(player_2):
-            move = current_agent.get_action(self.board, current_player)
-            if not move:
-                break
-            self.board.add_move(current_player, move)
+            for _ in [GamePhase.MOVE, GamePhase.BUILD]:
+                move = current_agent.get_action(self.board, current_player)
+                if show_board:
+                    print(self.board)
+                if not move:
+                    if show_messages:
+                        print(f"Player {current_player} lost for being out of legal moves.")
+                    self.board.clear()
+                    return player_1 if current_player == player_2 else player_2
+                self.board.add_move(current_player, move)
             current_player = player_2 if current_player == player_1 else player_1
             current_agent = agent_2 if current_agent == agent_1 else agent_1
+            count_moves += 1
+        if show_messages:
+            print(f"Game ended in a total of {count_moves} moves.")
+        self.board.clear()
+        return player_1 if self.is_winner(player_1) else player_2
+
+    def versus_multiple_rounds(self, agent_1: Agent, agent_2: Agent, rounds: int):
+        agent_1_wins = 0
+        agent_2_wins = 0
+        for _ in range(rounds):
+            result = self.play_agents_versus(agent_1, agent_2, show_messages=False, show_board=False)
+            if result.number == 1:
+                agent_1_wins += 1
+            else:
+                agent_2_wins += 1
+        print(f"Rounds: {rounds}. Agent 1 Wins: {agent_1_wins}, Agent 2 Wins: {agent_2_wins}")
+
 
 if __name__ == "__main__":
     game = GameEngine()
-    game.play_test()
-    game.minimax_test()
-
+    random_agent_1 = RandomAgent()
+    random_agent_2 = RandomAgent()
+    # game.play_test()
+    winner = game.play_agents_versus(random_agent_1, random_agent_2, True)
+    print(f"Player {winner} won!")
+    game.versus_multiple_rounds(random_agent_1, random_agent_2, 1000)
