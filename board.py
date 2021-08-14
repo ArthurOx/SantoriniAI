@@ -2,6 +2,7 @@ from enum import Enum
 from move import *
 from player import Player
 import numpy as np
+from copy import copy, deepcopy
 
 BOARD_SIZE = 5
 DOME_HEIGHT = 4  # Dome is represented as building of height 4
@@ -21,34 +22,60 @@ def is_in_board(x: int, y: int):
 
 
 class Board:
-    def __init__(self):
+    def __init__(self, player_1: Player, player_2: Player):
         self._board = np.array([[Tile(j, i) for i in range(BOARD_SIZE)] for j in range(BOARD_SIZE)])
         self._phase = GamePhase.SETUP
         self._players_set = 0
+        self.player_1 = player_1
+        self.player_2 = player_2
 
     def clear(self):
-        self.__init__()
+        self.player_1.reset()
+        self.player_2.reset()
+        self.__init__(self.player_1, self.player_2)
+
+    def get_copy(self):
+        board_copy = Board(copy(self.player_1), copy(self.player_2))
+        board_copy._board = deepcopy(self._board)
+        board_copy._phase = self._phase
+        board_copy._players_set = self._players_set
+        return board_copy
+
+    def get_player_by_number(self, number):
+        return self.player_1 if number == 1 else self.player_2
+
+    def get_enemy_of(self, player):
+        return self.player_1 if player == self.player_2 else self.player_2
+
+    def get_players(self):
+        return self.player_1, self.player_2
 
     def get_phase(self):
         return self._phase
 
-    def add_move(self, player: Player, move: Move):
+    """
+    on copy set to true when needed to perform move on a copy of this object without
+    changing self.
+    """
+    def add_move(self, player: Player, move: Move, on_copy=True):
+        if on_copy:
+            player = self.get_player_by_number(player.number)
+            move = copy(move)
         if not self.is_action_valid(player, move):
-            raise ValueError("Move is not allowed")
+            raise ValueError(f"Move [{move}] is not allowed")
 
         if self._phase == GamePhase.SETUP:
-            piece = self.do_setup(player, move)
+            self.do_setup(player, move)
             if self._players_set == NUM_PLAYERS:
                 self._phase = GamePhase.MOVE
-            return piece
 
         elif self._phase == GamePhase.MOVE:
             self._phase = GamePhase.BUILD
-            return self.do_move(player, move)
+            self.do_move(player, move)
 
         elif self._phase == GamePhase.BUILD:
             self._phase = GamePhase.MOVE
-            return self.do_build(player, move)
+            self.do_build(player, move)
 
     def is_action_valid(self, player: Player, move: Move):
         if self._phase == GamePhase.SETUP:
@@ -73,7 +100,7 @@ class Board:
                 not move.piece or \
                 (player.first_piece != move.piece and player.second_piece != move.piece) or \
                 move.tile not in self.get_adjacent_tiles(move.piece.tile.x, move.piece.tile.y) or \
-                move.piece.player != player:
+                move.piece.player.number != player.number:
             return False
         return True
 
@@ -111,12 +138,10 @@ class Board:
         if not player.first_piece:
             player.first_piece = Piece(self._board[move.x, move.y], player)
             self._board[move.x, move.y].piece = player.first_piece
-            return player.first_piece
         elif not player.second_piece:
             player.second_piece = Piece(self._board[move.x, move.y], player)
             self._board[move.x, move.y].piece = player.second_piece
             self._players_set += 1
-            return player.second_piece
         else:
             raise ValueError("Both pieces already set for player")
 
@@ -125,12 +150,10 @@ class Board:
         self._board[move.piece.tile.x, move.piece.tile.y].piece = None
         self._board[move.x, move.y].piece = move.piece
         move.piece.tile = self._board[move.x, move.y]
-        return move.piece
 
     def do_build(self, player: Player, move: Move):
         player.moved_piece = None
         self._board[move.x, move.y].add_level()
-        return move.piece
 
     def __getitem__(self, coords):
         x, y = coords
@@ -184,6 +207,13 @@ class Board:
 
     def get_height(self, x: int, y: int):
         return self._board[x, y].height
+
+    def is_winner(self, player):
+        if player.first_piece and player.second_piece:
+            if player.first_piece.tile.height == 3 or \
+                    player.second_piece.tile.height == 3:
+                return player
+        return None
 
     def __str__(self):
         board = '|@@@|@@@|@@@|@@@|@@@|\n'

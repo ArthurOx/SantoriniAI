@@ -2,18 +2,21 @@ from board import *
 import util
 
 
-def tile_value(x: int, y: int):
+def tile_value(player: Player):
     """
     The tiles in the middle have a higher value than those closer to edges.
     """
-    if not is_in_board(x, y):
-        return
+    score = 0
     tile_values = [[0, 0, 0, 0, 0],
                    [0, 1, 1, 1, 0],
                    [0, 1, 2, 1, 0],
                    [0, 1, 1, 1, 0],
                    [0, 0, 0, 0, 0]]
-    return tile_values[y][x]
+    if player.first_piece:
+        score += tile_values[player.first_piece.tile.x][player.first_piece.tile.y]
+    if player.second_piece:
+        score += tile_values[player.first_piece.tile.x][player.first_piece.tile.y]
+    return max(score, 0)
 
 
 def height_heuristic(game_state: Board, current_player: Player, enemy_player: Player):
@@ -49,10 +52,10 @@ def setup_heuristic():
     pass
 
 
-def evaluation_function(game_state: Board, current_player: Player, enemy_player:Player):
+def evaluation_function(game_state: Board, current_player: Player, enemy_player: Player):
     score = 0
-    if game_state.get_phase() == GamePhase.SETUP:  # todo think of heuristic
-        return score
+    if game_state.get_phase() == GamePhase.SETUP:
+        return tile_value(current_player)
     else:
         score += height_heuristic(game_state, current_player, enemy_player)
         if game_state.get_phase() == GamePhase.MOVE:

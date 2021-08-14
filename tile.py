@@ -8,6 +8,11 @@ class Tile:
     def add_level(self):
         self.height += 1
 
+    def __copy__(self):
+        tile_copy = Tile(self.x, self.y)
+        tile_copy.height = self.height
+        return tile_copy
+
     def __str__(self):
         if not self.piece:
             if self.height == 0:
@@ -16,3 +21,9 @@ class Tile:
         if self.height == 0:
             return f'-{self.piece}-'
         return f'{self.piece}{self.height}-'
+
+    def __eq__(self, other):
+        return self.x == other.x and \
+            self.y == other.y and \
+            self.piece == other.piece and \
+            self.height == other.height
