@@ -78,12 +78,14 @@ class MinMax(MultiAgentSearchAgent):
 
 
 class AlphaBeta(MultiAgentSearchAgent):
-    def __init__(self, player_1: Player, player_2: Player):
-        super().__init__()
-        self.player_1 = player_1
-        self.player_2 = player_2
+    def __init__(self, evaluation_function, depth=1):
+        super().__init__(evaluation_function, depth)
+        self.player_1 = None
+        self.player_2 = None
 
     def get_action(self, game_state, player):
+        self.max_player = player
+        self.min_player = game_state.get_enemy_of(player)
         return self.alpha_beta(game_state, player)[1]
 
     def alpha_beta(self, game_state, player: Player):
@@ -101,8 +103,9 @@ class AlphaBeta(MultiAgentSearchAgent):
             evaluation = -math.inf
             max_move = None
             for move in legal_moves:
-                score = self.alpha_beta_helper(game_state.do_move(player, move), MIN_PLAYER, depth - 1, alpha, beta)
-                # evaluation = max(evaluation, score)
+                board_copy = game_state.get_copy()
+                board_copy.add_move(player, move)
+                score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(MIN_PLAYER), depth - 1, alpha, beta)[0]
                 if score > evaluation:
                     evaluation = score
                     max_move = move
@@ -114,8 +117,9 @@ class AlphaBeta(MultiAgentSearchAgent):
             evaluation = math.inf
             min_move = None
             for move in legal_moves:
-                score = self.alpha_beta_helper(game_state.do_move(player, move), MAX_PLAYER, depth - 1, alpha, beta)
-                # evaluation = min(evaluation, score)
+                board_copy = game_state.get_copy()
+                board_copy.add_move(player, move)
+                score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(MAX_PLAYER), depth - 1, alpha, beta)[0]
                 if score < evaluation:
                     evaluation = score
                     min_move = move
