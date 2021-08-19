@@ -24,7 +24,7 @@ class MultiAgentSearchAgent(Agent):
 
 
 class MinMax(MultiAgentSearchAgent):
-    def __init__(self, evaluation_function, depth=2):
+    def __init__(self, evaluation_function, depth=1):
         super().__init__(evaluation_function, depth)
         self.max_player = None
         self.min_player = None
@@ -34,7 +34,7 @@ class MinMax(MultiAgentSearchAgent):
         self.min_player = game_state.get_enemy_of(player)
         return self.mini_max(game_state, player)[1]
 
-    def mini_max(self, game_state: Board, player: Player):
+    def mini_max(self, game_state, player: Player):
         return self.minimax_helper(game_state, player, self.depth * 2)
 
     def minimax_helper(self, game_state: Board, player: Player, depth):
@@ -48,7 +48,7 @@ class MinMax(MultiAgentSearchAgent):
             return 0, None
 
         max_move = None
-        if player == self.max_player:
+        if player.number == MAX_PLAYER:
             evaluation = -math.inf
             for move in legal_moves:
                 board_copy = game_state.get_copy()
