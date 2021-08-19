@@ -17,6 +17,8 @@ class Tile:
         if not self.piece:
             if self.height == 0:
                 return f'  '
+            if self.height == 4:
+                return f' O'
             return f' {self.height}'
         if self.height == 0:
             return f'{self.piece} '

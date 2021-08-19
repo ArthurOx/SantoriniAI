@@ -82,5 +82,4 @@ def evaluation_function(game_state: Board, current_player: Player, enemy_player:
         score += tile_value(current_player)
         score += height_heuristic(game_state, current_player, enemy_player)
         score += available_adjacent_tiles(game_state, current_player, enemy_player)
-
     return score
