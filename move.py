@@ -26,9 +26,9 @@ class Piece:
 
     def __str__(self):
         if self.player.number == 1:
-            return 'X'
+            return 'ƍ'
         else:
-            return 'Y'
+            return '♠'
 
     def __copy__(self):
         tile_copy = copy(self.tile)

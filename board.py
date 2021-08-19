@@ -134,6 +134,10 @@ class Board:
                     adjacent.append(self._board[x + i, y + j])
         return adjacent
 
+    def get_adjacent_tiles_of_player(self, player: Player):
+        return set(self.get_adjacent_tiles(player.first_piece.tile.x, player.first_piece.tile.y) +
+                   self.get_adjacent_tiles(player.second_piece.tile.x, player.second_piece.tile.y))
+
     def do_setup(self, player: Player, move: Move):
         if not player.first_piece:
             player.first_piece = Piece(self._board[move.x, move.y], player)
@@ -216,12 +220,15 @@ class Board:
         return None
 
     def __str__(self):
-        board = '|@@@|@@@|@@@|@@@|@@@|\n'
+        board = '╔══╦══╦══╦══╦══╗\n'
         for i in range(BOARD_SIZE):
-            board += f'|{self[i, 0]}|{self[i, 1]}|{self[i, 2]}|{self[i, 3]}|{self[i, 4]}|\n'
-        board += '|@@@|@@@|@@@|@@@|@@@|\n'
+            board += f'║{self[i, 0]}║{self[i, 1]}║{self[i, 2]}║{self[i, 3]}║{self[i, 4]}║\n'
+            if i == BOARD_SIZE - 1:
+                break
+            board += '╠══╬══╬══╬══╬══╣\n'
+        board += '╚══╩══╩══╩══╩══╝\n'
         if self._phase == GamePhase.MOVE:
-            board += f'Moving...\n'
+            board += f'...\n'
         elif self._phase == GamePhase.BUILD:
-            board += f'Building...\n'
+            board += f'...\n'
         return board

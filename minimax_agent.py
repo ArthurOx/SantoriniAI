@@ -1,10 +1,6 @@
-import numpy as np
 import abc
-from board import *
-from player import Player
 from agent import Agent
 from heuristics import *
-import util
 import math
 
 MAX_PLAYER = 1
@@ -28,7 +24,7 @@ class MultiAgentSearchAgent(Agent):
 
 
 class MinMax(MultiAgentSearchAgent):
-    def __init__(self, evaluation_function, depth=1):
+    def __init__(self, evaluation_function, depth=2):
         super().__init__(evaluation_function, depth)
         self.max_player = None
         self.min_player = None
@@ -78,11 +74,10 @@ class MinMax(MultiAgentSearchAgent):
 
 
 class AlphaBeta(MultiAgentSearchAgent):
-    def __init__(self, evaluation_function, depth=1):
+    def __init__(self, evaluation_function, depth=2):
         super().__init__(evaluation_function, depth)
         self.max_player = None
         self.min_player = None
-
 
     def get_action(self, game_state: Board, player: Player):
         self.max_player = player
@@ -106,7 +101,8 @@ class AlphaBeta(MultiAgentSearchAgent):
             for move in legal_moves:
                 board_copy = game_state.get_copy()
                 board_copy.add_move(player, move)
-                score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(MIN_PLAYER), depth - 1, alpha, beta)[0]
+                score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(MIN_PLAYER), depth - 1,
+                                               alpha, beta)[0]
                 if score > evaluation:
                     evaluation = score
                     max_move = move
@@ -120,7 +116,8 @@ class AlphaBeta(MultiAgentSearchAgent):
             for move in legal_moves:
                 board_copy = game_state.get_copy()
                 board_copy.add_move(player, move)
-                score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(MAX_PLAYER), depth - 1, alpha, beta)[0]
+                score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(MAX_PLAYER), depth - 1,
+                                               alpha, beta)[0]
                 if score < evaluation:
                     evaluation = score
                     min_move = move
