@@ -19,12 +19,16 @@ class GameEngine:
         # Setup p1
         move_1 = agent_1.get_action(self.board, player_1)
         self.board.add_move(player_1, move_1)
+        print(self.board)
         move_2 = agent_1.get_action(self.board, player_1)
         self.board.add_move(player_1, move_2)
+        print(self.board)
 
         # Setup p2
         move_3 = agent_2.get_action(self.board, player_2)
         self.board.add_move(player_2, move_3)
+        print(self.board)
+
         move_4 = agent_2.get_action(self.board, player_2)
         self.board.add_move(player_2, move_4)
 
@@ -42,7 +46,7 @@ class GameEngine:
                         print(f"Game ended in a total of {count_moves} moves.")
                     self.board.clear()
                     return player_1 if current_player == player_2 else player_2
-                self.board.add_move(current_player, move, False)
+                self.board.add_move(current_player, move)
                 if phase == GamePhase.MOVE and self.board.is_winner(current_player):
                     if show_board:
                         print(self.board)
@@ -78,6 +82,6 @@ if __name__ == "__main__":
     minimax_agent_2 = MinMax(evaluation_function)
     ab_agent = AlphaBeta(evaluation_function)
     mcst = MonteCarloAgent(500)
-    winner = game.play_agents_versus(minimax_agent, mcst, True)
+    winner = game.play_agents_versus(ab_agent, minimax_agent, True)
     # game.versus_multiple_rounds(minimax_agent, random_agent_1, 100)
     # game.versus_multiple_rounds(minimax_agent, minimax_agent_2, 10)
