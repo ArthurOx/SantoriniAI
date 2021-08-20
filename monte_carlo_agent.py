@@ -30,11 +30,14 @@ class MonteCarloAgent(Agent):
             next_move_dict[move] = 0
         for i in range(self.simulations_num):
             self.simulate(player,game_state, next_move_dict)
-
+        if len(next_move_dict)==0:
+            return None
         return max(next_move_dict.items(), key=operator.itemgetter(1))[0]
 
     def simulate(self, player,game_state, next_move_dict):
         self.current_board = game_state.get_copy()
+        if next_move_dict is None or len(next_move_dict)==0:
+            return
         first_next_move = random.choice(list(next_move_dict.keys()))
         self.current_board.add_move(player, first_next_move)
         if self.current_board.is_winner(player):
