@@ -53,10 +53,6 @@ class Board:
     def get_phase(self):
         return self._phase
 
-    """
-    on copy set to true when needed to perform move on a copy of this object without
-    changing self.
-    """
     def add_move(self, player: Player, move: Move, on_copy=True):
         if on_copy:
             player = self.get_player_by_number(player.number)
@@ -151,9 +147,13 @@ class Board:
 
     def do_move(self, player: Player, move: Move):
         player.moved_piece = move.piece
+        if player.first_piece.tile == move.piece.tile:
+            player.first_piece = move.piece
+        else:
+            player.second_piece = move.piece
         self._board[move.piece.tile.x, move.piece.tile.y].piece = None
         self._board[move.x, move.y].piece = move.piece
-        move.piece.tile = self._board[move.x, move.y]
+        move.piece.tile = move.tile
 
     def do_build(self, player: Player, move: Move):
         player.moved_piece = None
