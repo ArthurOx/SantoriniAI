@@ -1,15 +1,13 @@
-import minimax_agent
-from board import *
-from player import Player
-from move import *
+from monte_carlo_agent import *
 from minimax_agent import *
 from random_agent import RandomAgent
 from heuristics import *
 
 
 class GameEngine:
-    def __init__(self):
+    def __init__(self, display_in_gui=False):
         self.board = Board(Player(1), Player(2))
+        self.display_in_gui = display_in_gui
 
     """
     Player 1 plays with Agent 1, 2 with 2.
@@ -30,7 +28,7 @@ class GameEngine:
         move_4 = agent_2.get_action(self.board, player_2)
         self.board.add_move(player_2, move_4)
 
-        count_moves = 0
+        count_moves = 1
         current_player = player_1
         current_agent = agent_1
         while True:
@@ -61,7 +59,7 @@ class GameEngine:
         agent_1_wins = 0
         agent_2_wins = 0
         for _ in range(rounds):
-            result = self.play_agents_versus(agent_1, agent_2, show_messages=False, show_board=False)
+            result = self.play_agents_versus(agent_1, agent_2, show_messages=False, show_board=True)
             if result.number == 1:
                 agent_1_wins += 1
             else:
@@ -77,5 +75,9 @@ if __name__ == "__main__":
     # print(f"Player {winner} won!")
     # game.versus_multiple_rounds(random_agent_1, random_agent_2, 1000)
     minimax_agent = MinMax(evaluation_function)
-    winner = game.play_agents_versus(minimax_agent, random_agent_1, True)
-    game.versus_multiple_rounds(minimax_agent, random_agent_2, 100)
+    minimax_agent_2 = MinMax(evaluation_function)
+    ab_agent = AlphaBeta(evaluation_function)
+    mcst = MonteCarloAgent(500)
+    winner = game.play_agents_versus(minimax_agent, mcst, True)
+    # game.versus_multiple_rounds(minimax_agent, random_agent_1, 100)
+    # game.versus_multiple_rounds(minimax_agent, minimax_agent_2, 10)

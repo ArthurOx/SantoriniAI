@@ -16,11 +16,15 @@ class Tile:
     def __str__(self):
         if not self.piece:
             if self.height == 0:
-                return f'---'
-            return f'-{self.height}-'
+                return f'  '
+            if self.height == 4:
+                return f' O'
+            return f' {self.height}'
         if self.height == 0:
-            return f'-{self.piece}-'
-        return f'{self.piece}{self.height}-'
+            return f'{self.piece} '
+        if self.height == 4:
+            return f' O'
+        return f'{self.piece}{self.height}'
 
     def __eq__(self, other):
         return self.x == other.x and \
