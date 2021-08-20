@@ -18,16 +18,19 @@ class Tile:
             if self.height == 0:
                 return f'  '
             if self.height == 4:
-                return f' O'
+                return f' Ø'
             return f' {self.height}'
         if self.height == 0:
             return f'{self.piece} '
         if self.height == 4:
-            return f' O'
+            return f' Ø'
         return f'{self.piece}{self.height}'
 
     def __eq__(self, other):
         return self.x == other.x and \
-            self.y == other.y and \
-            self.piece == other.piece and \
-            self.height == other.height
+            self.y == other.y
+
+    def __hash__(self):
+        if self.piece:
+            return hash(f'{self.x}{self.y}{self.height}{self.piece.player}')
+        return hash(f'{self.x}{self.y}{self.height}')
