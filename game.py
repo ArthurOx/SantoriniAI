@@ -41,6 +41,9 @@ class GameEngine:
                     print(self.board)
                 move = current_agent.get_action(self.board, current_player)
                 if not move:
+                    # If current player has legal moves means enemy lost
+                    if self.board.get_legal_moves(current_player):
+                        current_player = player_2 if current_player == player_1 else player_1
                     if show_messages:
                         print(f"Player {current_player} lost for being out of legal moves.")
                         print(f"Game ended in a total of {count_moves} moves.")
