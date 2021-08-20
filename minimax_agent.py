@@ -2,9 +2,6 @@ import abc
 from agent import Agent
 from heuristics import *
 import math
-from itertools import permutations
-MAX_PLAYER = 1
-MIN_PLAYER = 2
 BOARD_SIZE = 5
 
 SETUP = 0
@@ -46,6 +43,7 @@ class MinMax(MultiAgentSearchAgent):
 
         legal_moves = game_state.get_legal_moves(player)
         if not legal_moves:
+            legal_moves = game_state.get_legal_moves(player)
             return 0, None
 
         max_move = None

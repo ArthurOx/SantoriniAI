@@ -16,6 +16,8 @@ class Move:
         return move_copy
 
     def __str__(self):
+        if not self.piece:
+            return f"({self.x}, {self.y})"
         return f"[Piece from ({self.piece.tile.x}, {self.piece.tile.y}) to ({self.x}, {self.y})]"
 
 
