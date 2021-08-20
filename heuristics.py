@@ -18,7 +18,7 @@ def tile_value(player: Player):
     if player.first_piece:
         score += tile_values[player.first_piece.tile.x][player.first_piece.tile.y]
     if player.second_piece:
-        score += tile_values[player.first_piece.tile.x][player.first_piece.tile.y]
+        score += tile_values[player.second_piece.tile.x][player.second_piece.tile.y]
     return score
 
 
@@ -26,7 +26,7 @@ def height_heuristic(game_state: Board, current_player: Player, enemy_player: Pl
     score = game_state.get_height(current_player.first_piece.tile.x, current_player.first_piece.tile.y)
     score += game_state.get_height(current_player.second_piece.tile.x, current_player.second_piece.tile.y)
     score -= game_state.get_height(enemy_player.first_piece.tile.x, enemy_player.first_piece.tile.y)
-    score -= game_state.get_height(enemy_player.first_piece.tile.x, enemy_player.first_piece.tile.y)
+    score -= game_state.get_height(enemy_player.second_piece.tile.x, enemy_player.second_piece.tile.y)
     return max(score, 0)
 
 
