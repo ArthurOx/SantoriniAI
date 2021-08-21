@@ -113,11 +113,11 @@ class QLearningAgent(Agent):
         if self.episode_number < self.train_episodes:
             print(f'\tRan for {self.episode_number}/{self.train_episodes} training episodes.')
             print(f'\tAverage rewards during training: {self.train_reward / EPISODE_UPDATE_INTERVAL}.')
-        if self.episode_number == self.train_episodes:
-            print('Finished Training\n-----------------')
         if self.episode_number >= self.train_episodes:
             inference_episodes = self.episode_number - self.train_episodes
             print(f'\tRan for {inference_episodes} inference episodes.')
             print(f'\tAverage rewards during inference: {self.inference_reward / EPISODE_UPDATE_INTERVAL}')
         print(f'\tRuntime for {EPISODE_UPDATE_INTERVAL} episodes: {(time.time() - self.episode_start)} seconds.')
+        if self.episode_number == self.train_episodes:
+            print('Finished Training\n-----------------')
 

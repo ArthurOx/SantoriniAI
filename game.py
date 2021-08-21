@@ -4,6 +4,7 @@ from matplotlib import pyplot
 from board import *
 from player import Player
 from move import *
+from monte_carlo_agent import *
 from minimax_agent import *
 from reinforcement_learning_agent import QLearningAgent
 from random_agent import RandomAgent
@@ -11,8 +12,9 @@ from heuristics import *
 
 
 class GameEngine:
-    def __init__(self):
+    def __init__(self, display_in_gui=False):
         self.board = Board(Player(1), Player(2))
+        self.display_in_gui = display_in_gui
 
     """
     Player 1 plays with Agent 1, 2 with 2.
@@ -24,16 +26,20 @@ class GameEngine:
         # Setup p1
         move_1 = agent_1.get_action(self.board, player_1)
         self.board.add_move(player_1, move_1)
+        print(self.board)
         move_2 = agent_1.get_action(self.board, player_1)
         self.board.add_move(player_1, move_2)
+        print(self.board)
 
         # Setup p2
         move_3 = agent_2.get_action(self.board, player_2)
         self.board.add_move(player_2, move_3)
+        print(self.board)
+
         move_4 = agent_2.get_action(self.board, player_2)
         self.board.add_move(player_2, move_4)
 
-        count_moves = 0
+        count_moves = 1
         current_player = player_1
         current_agent = agent_1
         while True:
@@ -42,11 +48,14 @@ class GameEngine:
                     print(self.board)
                 move = current_agent.get_action(self.board, current_player)
                 if not move:
+                    # If current player has legal moves means enemy lost
+                    if self.board.get_legal_moves(current_player):
+                        current_player = player_2 if current_player == player_1 else player_1
                     if show_messages:
                         print(f"Player {current_player} lost for being out of legal moves.")
                         print(f"Game ended in a total of {count_moves} moves.")
                     return player_1 if current_player == player_2 else player_2
-                self.board.add_move(current_player, move, False)
+                self.board.add_move(current_player, move)
                 if phase == GamePhase.MOVE and self.board.is_winner(current_player):
                     if show_board:
                         print(self.board)
@@ -64,7 +73,7 @@ class GameEngine:
         agent_1_wins = 0
         agent_2_wins = 0
         for _ in range(rounds):
-            result = self.play_agents_versus(agent_1, agent_2, show_messages=False, show_board=False)
+            result = self.play_agents_versus(agent_1, agent_2, show_messages=False, show_board=True)
             if result.number == 1:
                 agent_1_wins += 1
             else:
@@ -108,6 +117,7 @@ if __name__ == "__main__":
     # winner = game.play_agents_versus(random_agent_1, random_agent_2, True)
     # print(f"Player {winner} won!")
     # game.versus_multiple_rounds(random_agent_1, random_agent_2, 1000)
+
     # with open('poo.txt', 'w+') as f:
     #     combs = [(e, g, a) for e in range(0, 101, 10) for g in range(0, 101, 10) for a in range(0, 101, 10)]
     #     bar = ProgressBar(max_value=len(combs))
