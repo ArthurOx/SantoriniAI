@@ -29,6 +29,17 @@ class Board:
         self.player_1 = player_1
         self.player_2 = player_2
 
+    def __hash__(self):
+        return hash(str(self))
+
+    def __eq__(self, other):
+        return type(self) == type(other) and (
+            str(self) == str(other) and
+            self._players_set == other._players_set and
+            self.player_1 == other.player_1 and
+            self.player_2 == other.player_2
+        )
+
     def clear(self):
         self.player_1.reset()
         self.player_2.reset()

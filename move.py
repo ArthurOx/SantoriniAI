@@ -9,6 +9,14 @@ class Move:
         self.y = tile.y
         self.piece = piece
 
+    def __eq__(self, other):
+        return type(self) == type(other) and (
+            self.tile == other.tile and self.x == other.x and self.y == other.y and self.piece == other.piece
+        )
+
+    def __hash__(self):
+        return hash(self.tile) + hash(self.piece) + hash(f'{self.x} {self.y}')
+
     def __copy__(self):
         move_copy = Move(copy(self.tile), copy(self.piece))
         move_copy.x = self.x
@@ -23,6 +31,9 @@ class Piece:
     def __init__(self, tile, player):
         self.tile = tile
         self.player = player
+
+    def __hash__(self):
+        return hash(self.player) + hash(self.tile)
 
     def __str__(self):
         if self.player.number == 1:

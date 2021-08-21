@@ -5,6 +5,9 @@ class Tile:
         self.height = 0
         self.piece = None
 
+    def __hash__(self):
+        return hash(f'{self.x} {self.y} {self.height}')
+
     def add_level(self):
         self.height += 1
 

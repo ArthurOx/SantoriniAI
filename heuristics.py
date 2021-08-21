@@ -47,9 +47,9 @@ def adjacent_height(game_state: Board, x_1, y_1, x_2, y_2):
     for players_tile in [[x_1, y_1], [x_2, y_2]]:
         adjacent_tile = Board.get_adjacent_tiles(game_state, players_tile[0], players_tile[1])
         for tile in adjacent_tile:
-            if Board.get_height(game_state, Tile.get_x(tile), Tile.get_y(tile)) - \
+            if Board.get_height(game_state, tile.x, tile.y) - \
                     Board.get_height(game_state, players_tile[0], players_tile[1]) == 1:
-                score += Board.get_height(game_state, Tile.get_x(tile), Tile.get_y(tile))
+                score += Board.get_height(game_state, tile.x, tile.y)
     return score
 
 
@@ -74,7 +74,7 @@ def block_heuristic(game_state: Board, s_x_1, s_y_1, s_x_2, s_y_2):
     for players_tile in [[s_x_1, s_y_1], [s_x_2, s_y_2]]:
         adjacent_tile_1 = Board.get_adjacent_tiles(game_state, players_tile[0], players_tile[1])
         for tile in adjacent_tile_1:
-            if Board.get_height(game_state, Tile.get_x(tile), Tile.get_y(tile)) - \
+            if Board.get_height(game_state, tile.x, tile.y) - \
                     Board.get_height(game_state, players_tile[0], players_tile[1]) > 1:
                 score += 10
     return score

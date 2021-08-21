@@ -1,8 +1,11 @@
-import minimax_agent
+import pandas
+import seaborn
+from matplotlib import pyplot
 from board import *
 from player import Player
 from move import *
 from minimax_agent import *
+from reinforcement_learning_agent import QLearningAgent
 from random_agent import RandomAgent
 from heuristics import *
 
@@ -42,7 +45,6 @@ class GameEngine:
                     if show_messages:
                         print(f"Player {current_player} lost for being out of legal moves.")
                         print(f"Game ended in a total of {count_moves} moves.")
-                    self.board.clear()
                     return player_1 if current_player == player_2 else player_2
                 self.board.add_move(current_player, move, False)
                 if phase == GamePhase.MOVE and self.board.is_winner(current_player):
@@ -51,8 +53,9 @@ class GameEngine:
                     if show_messages:
                         print(f"Player {current_player} won!")
                         print(f"Game ended in a total of {count_moves} moves.")
-                    self.board.clear()
                     return current_player
+                if current_player == player_1:
+                    agent_1.record_iteration(self.board, move, player_1)
             current_player = player_2 if current_player == player_1 else player_1
             current_agent = agent_2 if current_agent == agent_1 else agent_1
             count_moves += 1
@@ -66,16 +69,56 @@ class GameEngine:
                 agent_1_wins += 1
             else:
                 agent_2_wins += 1
+            self.board.clear()
         print(f"Rounds: {rounds}. A1 {agent_1} Wins: {agent_1_wins}, A2 {agent_2} Wins: {agent_2_wins}")
 
 
+def train(alpha, epsilon, gamma, episodes):
+    scores = []
+    learning_agent = QLearningAgent(alpha=alpha, epsilon=epsilon, gamma=gamma, train_episodes=episodes)
+    for i in range(learning_agent.train_episodes):
+        game = GameEngine()
+        learning_agent.start_episode()
+        game.play_agents_versus(learning_agent, AlphaBeta(evaluation_function), False, False)
+        score = learning_agent.end_episode()
+
+        if score != -1:
+            scores.append(score)
+    return scores
+
+
+def tune(alphas, epsilons, gammas, episodes=300):
+    scores = dict()
+    for alpha in alphas:
+        for epsilon in epsilons:
+            for gamma in gammas:
+                title = f'α: {alpha}, ε: {epsilon}, γ: {gamma}'
+                print('-' * (21 + len(title)) + f'\nTraining with values {title}\n' + '-' * (21 + len(title)))
+                scores[title] = train(alpha, epsilon, gamma, episodes)
+
+    seaborn.lineplot(data=pandas.DataFrame(scores))
+    [seaborn.lineplot(data=pandas.DataFrame(scores)[v]) for v in scores]
+    pyplot.savefig('gamma.png')
+
+
 if __name__ == "__main__":
-    game = GameEngine()
-    random_agent_1 = RandomAgent()
-    random_agent_2 = RandomAgent()
+    # game = GameEngine()
+    # random_agent_1 = RandomAgent()
+    # random_agent_2 = RandomAgent()
     # winner = game.play_agents_versus(random_agent_1, random_agent_2, True)
     # print(f"Player {winner} won!")
     # game.versus_multiple_rounds(random_agent_1, random_agent_2, 1000)
-    minimax_agent = MinMax(evaluation_function)
-    winner = game.play_agents_versus(minimax_agent, random_agent_1, True)
-    game.versus_multiple_rounds(minimax_agent, random_agent_2, 100)
+    # with open('poo.txt', 'w+') as f:
+    #     combs = [(e, g, a) for e in range(0, 101, 10) for g in range(0, 101, 10) for a in range(0, 101, 10)]
+    #     bar = ProgressBar(max_value=len(combs))
+    #     for e, g, a in bar(combs):
+    #        minimax_agent = QLearningAgent(epsilon=e/100, gamma=g/100, alpha=a/100, numTraining=100)
+    #        # winner = game.play_agents_versus(minimax_agent, minimax_agent, False)
+    #        f.write('='*50 + f'\n{(e/100), (g/100), (a/100)}\n')
+    #        game.versus_multiple_rounds(minimax_agent, random_agent_2, 100, f)
+
+    # test ideas:
+    #   learn against random (hyp: long but correct),
+    #   against minmax (hyp: upper bounded by minmax perf),
+    #   against own last iteration or against another QLearnAgent
+    tune([0.5], [0.05], [0.3, 0.5, 0.8])

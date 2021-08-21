@@ -8,6 +8,12 @@ class Player:
         self.first_piece = None
         self.second_piece = None
 
+    def __hash__(self):
+        return hash(self.number)
+
+    def __eq__(self, other):
+        return type(other) == type(self) and self.number == other.number
+
     def reset(self):
         self.__init__(self.number)
 
