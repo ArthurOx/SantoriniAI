@@ -33,11 +33,14 @@ class Board:
         return hash(self.raw_representation())
 
     def raw_representation(self):
-        return f'{self._phase.value:2b}' + ''.join([t.raw_representation() for t in self._board.flatten()])
+        result = f'{self._phase.value:2b}'
+        for tile in self._board.flatten():
+            result += tile.raw_representation()
+        return result
 
     def __eq__(self, other):
         return type(self) == type(other) and (
-            str(self) == str(other) and
+            np.array_equal(self._board, other._board) and
             self._players_set == other._players_set and
             self.player_1 == other.player_1 and
             self.player_2 == other.player_2
