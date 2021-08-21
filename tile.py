@@ -5,8 +5,10 @@ class Tile:
         self.height = 0
         self.piece = None
 
-    def __hash__(self):
-        return hash(f'{self.x} {self.y} {self.height}')
+    def raw_representation(self):
+        height_repr = f'{self.height:3b}'
+        piece_repr = f'{self.piece.player.number:2b}' if self.piece is not None else '0'
+        return height_repr + piece_repr
 
     def add_level(self):
         self.height += 1

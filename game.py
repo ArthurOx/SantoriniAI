@@ -98,7 +98,7 @@ def train(alpha, epsilon, gamma, episodes):
     return scores
 
 
-def tune(alphas, epsilons, gammas, episodes=300):
+def tune(alphas, epsilons, gammas, episodes=2000):
     scores = dict()
     for alpha in alphas:
         for epsilon in epsilons:
@@ -135,4 +135,4 @@ if __name__ == "__main__":
     #   learn against random (hyp: long but correct),
     #   against minmax (hyp: upper bounded by minmax perf),
     #   against own last iteration or against another QLearnAgent
-    tune([0.5], [0.05], [0.3, 0.5, 0.8])
+    tune([0.2], [0.05], [0.3, 0.5, 0.8])

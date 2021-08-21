@@ -30,7 +30,10 @@ class Board:
         self.player_2 = player_2
 
     def __hash__(self):
-        return hash(str(self))
+        return hash(self.raw_representation())
+
+    def raw_representation(self):
+        return f'{self._phase.value:2b}' + ''.join([t.raw_representation() for t in self._board.flatten()])
 
     def __eq__(self, other):
         return type(self) == type(other) and (

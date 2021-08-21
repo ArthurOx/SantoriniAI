@@ -15,7 +15,11 @@ class Move:
         )
 
     def __hash__(self):
-        return hash(self.tile) + hash(self.piece) + hash(f'{self.x} {self.y}')
+        return hash(self.raw_representation())
+
+    def raw_representation(self):
+        piece_repr = f'{self.piece.player.number:2b}' if self.piece is not None else '0'
+        return f'{self.x:3b}{self.y:3b}{self.tile.x:3b}{self.tile.y:3b}' + piece_repr
 
     def __copy__(self):
         move_copy = Move(copy(self.tile), copy(self.piece))
