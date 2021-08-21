@@ -66,8 +66,7 @@ class GameEngine:
                         print(f"Player {current_player} won!")
                         print(f"Game ended in a total of {count_moves} moves.")
                     return current_player
-                if current_player == player_1:
-                    agent_1.record_iteration(self.board, move, player_1)
+                current_agent.record_iteration(self.board, move, player_1)
             current_player = player_2 if current_player == player_1 else player_1
             current_agent = agent_2 if current_agent == agent_1 else agent_1
             count_moves += 1
@@ -99,7 +98,7 @@ def train(alpha, epsilon, gamma, episodes):
     return scores
 
 
-def tune(alphas, epsilons, gammas, episodes=200):
+def tune(alphas, epsilons, gammas, episodes=300):
     scores = dict()
     for alpha in alphas:
         for epsilon in epsilons:
@@ -108,8 +107,10 @@ def tune(alphas, epsilons, gammas, episodes=200):
                 print('-' * (21 + len(title)) + f'\nTraining with values {title}\n' + '-' * (21 + len(title)))
                 scores[title] = train(alpha, epsilon, gamma, episodes)
 
-    seaborn.lineplot(data=pandas.DataFrame(scores))
-    [seaborn.lineplot(data=pandas.DataFrame(scores)[v]) for v in scores]
+    df = pandas.DataFrame(scores)
+    with open('scores.tsv', 'w+') as f:
+        f.write(df.to_csv(sep='\t'))
+    seaborn.lineplot(data=df, palette='colorblind')
     pyplot.savefig('gamma.png')
 
 

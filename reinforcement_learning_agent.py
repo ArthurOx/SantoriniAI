@@ -69,14 +69,14 @@ class QLearningAgent(Agent):
         else:
             self._set_to_inference_mode()
             self.inference_reward += self.episode_reward
-        score = self.train_reward / EPISODE_UPDATE_INTERVAL
 
         self.episode_number += 1
+        score = -1
         if self.episode_number % EPISODE_UPDATE_INTERVAL == 0:
+            score = self.train_reward / EPISODE_UPDATE_INTERVAL
             self._print_run_details()
             self.train_reward, self.inference_reward = 0, 0
             self.episode_start = time.time()
-
         return score
 
     def _get_q_value(self, state, action, player):

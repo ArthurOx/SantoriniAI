@@ -9,5 +9,8 @@ class Agent(object):
     def get_action(self, game_state, player):
         return
 
+    def record_iteration(self, state, action, player):
+        pass
+
     def __str__(self):
         pass
