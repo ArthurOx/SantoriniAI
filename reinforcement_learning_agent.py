@@ -69,14 +69,14 @@ class QLearningAgent(Agent):
         else:
             self._set_to_inference_mode()
             self.inference_reward += self.episode_reward
-        self.episode_number += 1
+        score = self.train_reward / EPISODE_UPDATE_INTERVAL
 
-        score = -1
+        self.episode_number += 1
         if self.episode_number % EPISODE_UPDATE_INTERVAL == 0:
-            score = self.train_reward / EPISODE_UPDATE_INTERVAL
             self._print_run_details()
             self.train_reward, self.inference_reward = 0, 0
             self.episode_start = time.time()
+
         return score
 
     def _get_q_value(self, state, action, player):
@@ -110,14 +110,13 @@ class QLearningAgent(Agent):
 
     def _print_run_details(self):
         print('Agent performance update:')
-        if self.episode_number < self.train_episodes:
+        if self.episode_number <= self.train_episodes:
             print(f'\tRan for {self.episode_number}/{self.train_episodes} training episodes.')
             print(f'\tAverage rewards during training: {self.train_reward / EPISODE_UPDATE_INTERVAL}.')
-        if self.episode_number >= self.train_episodes:
+        if self.episode_number > self.train_episodes:
             inference_episodes = self.episode_number - self.train_episodes
             print(f'\tRan for {inference_episodes} inference episodes.')
             print(f'\tAverage rewards during inference: {self.inference_reward / EPISODE_UPDATE_INTERVAL}')
         print(f'\tRuntime for {EPISODE_UPDATE_INTERVAL} episodes: {(time.time() - self.episode_start)} seconds.')
         if self.episode_number == self.train_episodes:
-            print('Finished Training\n-----------------')
-
+            print('Finished Training')

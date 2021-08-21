@@ -26,15 +26,18 @@ class GameEngine:
         # Setup p1
         move_1 = agent_1.get_action(self.board, player_1)
         self.board.add_move(player_1, move_1)
-        print(self.board)
+        if show_board:
+            print(self.board)
         move_2 = agent_1.get_action(self.board, player_1)
         self.board.add_move(player_1, move_2)
-        print(self.board)
+        if show_board:
+            print(self.board)
 
         # Setup p2
         move_3 = agent_2.get_action(self.board, player_2)
         self.board.add_move(player_2, move_3)
-        print(self.board)
+        if show_board:
+            print(self.board)
 
         move_4 = agent_2.get_action(self.board, player_2)
         self.board.add_move(player_2, move_4)
@@ -88,7 +91,7 @@ def train(alpha, epsilon, gamma, episodes):
     for i in range(learning_agent.train_episodes):
         game = GameEngine()
         learning_agent.start_episode()
-        game.play_agents_versus(learning_agent, AlphaBeta(evaluation_function), False, False)
+        game.play_agents_versus(learning_agent, RandomAgent(), False, False)
         score = learning_agent.end_episode()
 
         if score != -1:
@@ -96,7 +99,7 @@ def train(alpha, epsilon, gamma, episodes):
     return scores
 
 
-def tune(alphas, epsilons, gammas, episodes=300):
+def tune(alphas, epsilons, gammas, episodes=200):
     scores = dict()
     for alpha in alphas:
         for epsilon in epsilons:
