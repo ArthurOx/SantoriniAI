@@ -101,8 +101,8 @@ class QLearningAgent(Agent):
         if player not in self.player_q_values:
             self.player_q_values[player] = defaultdict(util.Counter)
 
-        delta = self._get_value(next_state, player) - self._get_q_value(state, action, player)
-        self.player_q_values[player][state][action] = self.alpha * (reward + self.discount * delta)
+        value, q_value = self._get_value(next_state, player), self._get_q_value(state, action, player)
+        self.player_q_values[player][state][action] = self.alpha * (reward + self.discount * value - q_value)
 
     def _set_to_inference_mode(self):
         self.epsilon = 0  # no exploration
