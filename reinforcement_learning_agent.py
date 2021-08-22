@@ -120,3 +120,18 @@ class QLearningAgent(Agent):
         print(f'\tRuntime for {EPISODE_UPDATE_INTERVAL} episodes: {(time.time() - self.episode_start)} seconds.')
         if self.episode_number == self.train_episodes:
             print('Finished Training')
+
+
+class ApproximateQAgent(QLearningAgent):
+    def __init__(self, feature_extractor, epsilon=0.05, gamma=0.8, alpha=0.2, train_episodes=0):
+        super().__init__(epsilon, gamma, alpha, train_episodes)
+        self.feature_extractor = feature_extractor
+        self.weights = util.Counter()
+
+    def _get_q_value(self, state, action, player):
+        return self.weights * self.feature_extractor.extract(state, action, player)
+
+    def _update(self, state, action, next_state, reward, player):
+        value, q_value = self._get_value(next_state, player), self._get_q_value(state, action, player)
+        for feature, f_value in self.feature_extractor.extract(state, action, player).items():
+            self.weights[feature] += self.alpha * (reward + self.discount * value - q_value) * f_value
