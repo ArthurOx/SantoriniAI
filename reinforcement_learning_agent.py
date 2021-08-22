@@ -129,9 +129,9 @@ class ApproximateQAgent(QLearningAgent):
         self.weights = util.Counter()
 
     def _get_q_value(self, state, action, player):
-        return self.weights * self.feature_extractor.extract(state, action, player)
+        return self.weights * self.feature_extractor(state, action, player)
 
     def _update(self, state, action, next_state, reward, player):
         value, q_value = self._get_value(next_state, player), self._get_q_value(state, action, player)
-        for feature, f_value in self.feature_extractor.extract(state, action, player).items():
+        for feature, f_value in self.feature_extractor(state, action, player).items():
             self.weights[feature] += self.alpha * (reward + self.discount * value - q_value) * f_value
