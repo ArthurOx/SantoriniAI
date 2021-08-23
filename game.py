@@ -2,11 +2,12 @@ import pandas
 import seaborn
 from matplotlib import pyplot
 from board import *
+from feature_extractor import extractor
 from player import Player
 from move import *
 from monte_carlo_agent import *
 from minimax_agent import *
-from reinforcement_learning_agent import QLearningAgent
+from reinforcement_learning_agent import QLearningAgent, ApproximateQAgent
 from random_agent import RandomAgent
 from heuristics import *
 
@@ -86,11 +87,11 @@ class GameEngine:
 
 def train(alpha, epsilon, gamma, episodes):
     scores = []
-    learning_agent = QLearningAgent(alpha=alpha, epsilon=epsilon, gamma=gamma, train_episodes=episodes)
-    for i in range(learning_agent.train_episodes):
+    learning_agent = QLearningAgent(epsilon, gamma, alpha, episodes)
+    for i in range(episodes):
         game = GameEngine()
         learning_agent.start_episode()
-        game.play_agents_versus(learning_agent, RandomAgent(), False, False)
+        game.play_agents_versus(learning_agent, MonteCarloAgent(10), False, False)
         score = learning_agent.end_episode()
 
         if score != -1:
@@ -135,4 +136,4 @@ if __name__ == "__main__":
     #   learn against random (hyp: long but correct),
     #   against minmax (hyp: upper bounded by minmax perf),
     #   against own last iteration or against another QLearnAgent
-    tune([0.2], [0.05], [0.3, 0.5, 0.8])
+    tune([0.1, 0.3, 0.5], [0.05, 0.1], [0.3, 0.5, 0.8])
