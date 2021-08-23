@@ -212,7 +212,7 @@ class Board:
     def get_height(self, x: int, y: int):
         return self._board[x, y].height
 
-    def is_winner(self, player):
+    def is_on_height_3(self, player):
         if player.first_piece and player.second_piece:
             if player.first_piece.tile.height == 3 or \
                     player.second_piece.tile.height == 3:

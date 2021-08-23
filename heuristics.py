@@ -57,17 +57,18 @@ def _get_climbing_potential(from_tile: Tile, to_tile: Tile):
     """
     if to_tile.height - from_tile.height == 1:
         if to_tile.height == 3:
-            return 500
+            return 5
         return to_tile.height
     return 0
 
 
 def _win_heuristic(game_state: Board, current_player: Player, enemy_player: Player):
-    if game_state.is_winner(current_player):
-        return 1000
+    if game_state.is_on_height_3(current_player):
+        return 100
     if game_state.get_phase() == GamePhase.MOVE and not game_state.get_legal_moves(enemy_player):
-        return 1000
+        return 100
     return 0
+
 # def _check_piece_win_condition(game_state: Board, piece: Piece):
 #     if piece.tile.height == 2:
 #         enemy_adjacent_tiles = game_state.get_adjacent_tiles(piece.tile)

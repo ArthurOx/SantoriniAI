@@ -36,7 +36,7 @@ class MinMax(MultiAgentSearchAgent):
 
     def minimax_helper(self, game_state: Board, player: Player, depth):
         enemy_player = game_state.get_enemy_of(player)
-        if depth == 0 or game_state.is_winner(player) or \
+        if depth == 0 or game_state.is_on_height_3(player) or \
                 (game_state.get_phase() == GamePhase.MOVE and not game_state.get_legal_moves(enemy_player)):
             evaluation = self.evaluation_function(game_state, player, enemy_player)
             return evaluation, None
@@ -83,12 +83,16 @@ class MinMax(MultiAgentSearchAgent):
 
 
 class AlphaBeta(MultiAgentSearchAgent):
-    def __init__(self, evaluation_function, depth=1):
+    def __init__(self, evaluation_function, depth=2):
         super().__init__(evaluation_function, depth)
         self.max_player = 1
         self.min_player = 2
+        self.setup_phase_bound = 2
+        self.nodes = 0
 
     def get_action(self, game_state: Board, player: Player):
+        self.nodes = 0
+        self.setup_phase_bound = 2
         self.max_player = player.number
         self.min_player = 2 if player.number == 1 else 1
         return self.alpha_beta(game_state, player)[1]
@@ -98,7 +102,7 @@ class AlphaBeta(MultiAgentSearchAgent):
 
     def alpha_beta_helper(self, game_state, player: Player, depth, alpha, beta):
         enemy_player = game_state.get_enemy_of(player)
-        if depth == 0 or game_state.is_winner(player) or \
+        if depth == 0 or game_state.is_on_height_3(player) or \
                 (game_state.get_phase() == GamePhase.MOVE and not game_state.get_legal_moves(enemy_player)):
             evaluation = self.evaluation_function(game_state, player, enemy_player)
             return evaluation, None
@@ -111,16 +115,19 @@ class AlphaBeta(MultiAgentSearchAgent):
             evaluation = -math.inf
             max_move = None
             for move in legal_moves:
+                self.nodes += 1
                 board_copy = game_state.get_copy()
                 board_copy.add_move(player, move)
-                if (board_copy.get_phase() == GamePhase.SETUP and
-                    not board_copy.get_player_by_number(self.max_player).second_piece) or \
-                        board_copy.get_phase() == GamePhase.BUILD:
+                if board_copy.get_phase() == GamePhase.SETUP and \
+                   not board_copy.get_player_by_number(self.max_player).second_piece:
+                    score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(self.max_player),
+                                                   self.setup_phase_bound - 1, alpha, beta)[0]
+                elif board_copy.get_phase() == GamePhase.BUILD:
                     score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(self.max_player), depth,
                                                    alpha, beta)[0]
                 else:
-                    score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(self.min_player), depth - 1,
-                                                   alpha, beta)[0]
+                    score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(self.min_player),
+                                                   depth-1, alpha, beta)[0]
                 if score > evaluation:
                     evaluation = score
                     max_move = move
@@ -132,16 +139,19 @@ class AlphaBeta(MultiAgentSearchAgent):
             evaluation = math.inf
             min_move = None
             for move in legal_moves:
+                self.nodes += 1
                 board_copy = game_state.get_copy()
                 board_copy.add_move(player, move)
-                if (board_copy.get_phase() == GamePhase.SETUP and
-                    not board_copy.get_player_by_number(self.min_player).second_piece) or \
-                        board_copy.get_phase() == GamePhase.BUILD:
-                    score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(self.min_player), depth,
-                                                   alpha, beta)[0]
+                if board_copy.get_phase() == GamePhase.SETUP and not board_copy.get_player_by_number(
+                        self.min_player).second_piece:
+                    score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(self.min_player),
+                                                   self.setup_phase_bound - 1, alpha, beta)[0]
+                elif board_copy.get_phase() == GamePhase.BUILD:
+                    score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(self.min_player),
+                                                   depth - 1, alpha, beta)[0]
                 else:
-                    score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(self.max_player), depth - 1,
-                                                   alpha, beta)[0]
+                    score = self.alpha_beta_helper(board_copy, board_copy.get_player_by_number(self.max_player),
+                                                   depth - 1, alpha, beta)[0]
                 if score < evaluation:
                     evaluation = score
                     min_move = move
