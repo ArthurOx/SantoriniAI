@@ -24,6 +24,8 @@ class MonteCarloAgent(Agent):
         next_move_dict = {}
         for move in legal_moves:
             next_move_dict[move] = 0
+        if next_move_dict is None or len(next_move_dict)==0:
+            return
         for i in range(self.simulations_num):
             self.simulate(player, game_state, next_move_dict)
 
@@ -31,6 +33,8 @@ class MonteCarloAgent(Agent):
 
     def simulate(self, player, game_state, next_move_dict):
         self.current_board = game_state.get_copy()
+        if len(next_move_dict) == 0:
+            return
         first_next_move = random.choice(list(next_move_dict.keys()))
         self.current_board.add_move(player, first_next_move)
         if self.current_board.is_on_height_3(player):
