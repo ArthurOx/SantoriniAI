@@ -69,31 +69,14 @@ def _win_heuristic(game_state: Board, current_player: Player, enemy_player: Play
         return 100
     return 0
 
-# def _check_piece_win_condition(game_state: Board, piece: Piece):
-#     if piece.tile.height == 2:
-#         enemy_adjacent_tiles = game_state.get_adjacent_tiles(piece.tile)
-#         for tile in enemy_adjacent_tiles:
-#             if tile.height
-
-# def height_heuristic_build(game_state: Board, current_player: Player, enemy_player: Player):
-#     """
-#     If there is a tile of height 2 nearby there are those possibilities:
-#      - If there is an enemy near this tile on height 2, we are giving a free win to the opponent if we build there
-#      - If there isn't, it might be safe to build there
-#     :return:
-#     """
-#     # Force block a winning opponent if possible
-#     if enemy_player.first_piece.tile.height == 2:
-#         enemy_adjacent_tiles = game_state.get_adjacent_tiles()
-
 def evaluation_function(game_state: Board, current_player: Player, enemy_player: Player):
     score = 0
     if game_state.get_phase() == GamePhase.SETUP:
-        return tile_value(current_player)
+        return tile_value(enemy_player)
     else:
         score += tile_value(current_player)
         if game_state.get_phase() == GamePhase.MOVE:
-            score += height_heuristic(game_state, current_player, enemy_player)
-            score += available_adjacent_tiles(game_state, current_player, enemy_player)
-            score += _win_heuristic(game_state, current_player, enemy_player)
+            score += 100 * height_heuristic(game_state, current_player, enemy_player)
+            score += 20 * available_adjacent_tiles(game_state, current_player, enemy_player)
+            score += 200 * _win_heuristic(game_state, current_player, enemy_player)
     return score

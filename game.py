@@ -28,16 +28,8 @@ class GameEngine:
         move_3 = agent_2.get_action(self.board, player_2)
         self.board.add_move(player_2, move_3)
         print(self.board)
-        try:
-            print(agent_2.nodes)
-        except:
-            pass
         move_4 = agent_2.get_action(self.board, player_2)
         self.board.add_move(player_2, move_4)
-        try:
-            print(agent_2.nodes)
-        except:
-            pass
 
         count_moves = 1
         current_player = player_1
@@ -47,10 +39,6 @@ class GameEngine:
                 if show_board:
                     print(self.board)
                 move = current_agent.get_action(self.board, current_player)
-                try:
-                    print(current_agent.nodes)
-                except:
-                    pass
                 if not move:
                     # If current player has legal moves means enemy lost
                     if self.board.get_legal_moves(current_player):
@@ -96,6 +84,6 @@ if __name__ == "__main__":
     minimax_agent_2 = MinMax(evaluation_function)
     ab_agent = AlphaBeta(evaluation_function)
     mcst = MonteCarloAgent(500)
-    winner = game.play_agents_versus(mcst, ab_agent, True)
+    winner = game.play_agents_versus(minimax_agent, ab_agent, True)
     # game.versus_multiple_rounds(minimax_agent, random_agent_1, 100)
     # game.versus_multiple_rounds(minimax_agent, minimax_agent_2, 10)

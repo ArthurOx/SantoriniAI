@@ -45,7 +45,7 @@ class Board:
         return self.player_1 if number == 1 else self.player_2
 
     def get_enemy_of(self, player):
-        return self.player_1 if player == self.player_2 else self.player_2
+        return self.player_1 if player.number == self.player_2.number else self.player_2
 
     def get_players(self):
         return self.player_1, self.player_2
