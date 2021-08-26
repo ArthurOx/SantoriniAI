@@ -84,6 +84,6 @@ if __name__ == "__main__":
     minimax_agent_2 = MinMax(evaluation_function)
     ab_agent = AlphaBeta(evaluation_function)
     mcst = MonteCarloAgent(500)
-    winner = game.play_agents_versus(minimax_agent, ab_agent, True)
+    winner = game.play_agents_versus(mcst, ab_agent, True)
     # game.versus_multiple_rounds(minimax_agent, random_agent_1, 100)
     # game.versus_multiple_rounds(minimax_agent, minimax_agent_2, 10)

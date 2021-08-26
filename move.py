@@ -20,6 +20,9 @@ class Move:
             return f"({self.x}, {self.y})"
         return f"[Piece from ({self.piece.tile.x}, {self.piece.tile.y}) to ({self.x}, {self.y})]"
 
+    def __hash__(self):
+        return hash(str(self))
+
 
 class Piece:
     def __init__(self, tile, player):

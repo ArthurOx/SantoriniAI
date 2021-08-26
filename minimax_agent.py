@@ -16,7 +16,7 @@ class HeuristicSearchAgent(Agent):
 
 
 class MinMax(HeuristicSearchAgent):
-    def __init__(self, evaluation_function, depth=1):
+    def __init__(self, evaluation_function, depth=2):
         super().__init__(evaluation_function, depth)
         self.max_player = 1
         self.min_player = 2
@@ -36,9 +36,9 @@ class MinMax(HeuristicSearchAgent):
     def mini_max(self, game_state, player: Player):
         # During setup limit the search depth to 2
         if game_state.get_phase() == GamePhase.SETUP:
-            _, self.move_action, self.build_action = self.minimax_helper(game_state, player, 1)
+            _, self.move_action, self.build_action = self.minimax_helper(game_state, player, 2)
         else:
-            _, self.move_action, self.build_action = self.minimax_helper(game_state, player, self.depth * 2)
+            _, self.move_action, self.build_action = self.minimax_helper(game_state, player, self.depth)
 
     def minimax_helper(self, game_state: Board, player: Player, depth):
         enemy_player = game_state.get_enemy_of(player)
@@ -89,7 +89,7 @@ class MinMax(HeuristicSearchAgent):
 
 
 class AlphaBeta(HeuristicSearchAgent):
-    def __init__(self, evaluation_function, depth=2):
+    def __init__(self, evaluation_function, depth=3):
         super().__init__(evaluation_function, depth)
         self.max_player = 1
         self.min_player = 2
@@ -112,7 +112,7 @@ class AlphaBeta(HeuristicSearchAgent):
             _, self.move_action, self.build_action = self.alpha_beta_helper(game_state, player, 2, -math.inf,
                                                                             math.inf)
         else:
-            _, self.move_action, self.build_action = self.alpha_beta_helper(game_state, player, self.depth * 2,
+            _, self.move_action, self.build_action = self.alpha_beta_helper(game_state, player, self.depth,
                                                                             -math.inf, math.inf)
 
     def alpha_beta_helper(self, game_state, player: Player, depth, alpha, beta):
