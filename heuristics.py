@@ -78,6 +78,7 @@ def evaluation_function(game_state: Board, current_player: Player, enemy_player:
     else:
         score += tile_value(current_player, enemy_player)
         score += 100 * height_heuristic(game_state, current_player, enemy_player)
-        score += 20 * available_adjacent_tiles(game_state, current_player, enemy_player)
+        climbing_potential_factor = 50  # test this number
+        score += 20 * available_adjacent_tiles(game_state, current_player, enemy_player, climbing_potential_factor)
         score += 200 * _win_heuristic(game_state, current_player, enemy_player)
     return score

@@ -41,9 +41,10 @@ class MinMax(HeuristicSearchAgent):
             _, self.move_action, self.build_action = self.minimax_helper(game_state, player, self.depth)
 
     def minimax_helper(self, game_state: Board, player: Player, depth):
-        enemy_player = game_state.get_enemy_of(player)
-        if depth == 0 or not game_state.get_legal_moves(player) or game_state.is_on_height_3(enemy_player):
-            evaluation = self.evaluation_function(game_state, player, enemy_player)
+        max_player = game_state.get_player_by_number(self.max_player)
+        min_player = game_state.get_player_by_number(self.min_player)
+        if depth == 0 or not game_state.get_legal_moves(min_player) or game_state.is_on_height_3(max_player):
+            evaluation = self.evaluation_function(game_state, max_player, min_player)
             return evaluation, None
 
         legal_moves = game_state.get_legal_moves(player)
@@ -89,7 +90,7 @@ class MinMax(HeuristicSearchAgent):
 
 
 class AlphaBeta(HeuristicSearchAgent):
-    def __init__(self, evaluation_function, depth=3):
+    def __init__(self, evaluation_function, depth=4):
         super().__init__(evaluation_function, depth)
         self.max_player = 1
         self.min_player = 2
@@ -116,9 +117,10 @@ class AlphaBeta(HeuristicSearchAgent):
                                                                             -math.inf, math.inf)
 
     def alpha_beta_helper(self, game_state, player: Player, depth, alpha, beta):
-        enemy_player = game_state.get_enemy_of(player)
-        if depth == 0 or not game_state.get_legal_moves(player) or game_state.is_on_height_3(enemy_player):
-            evaluation = self.evaluation_function(game_state, player, enemy_player)
+        max_player = game_state.get_player_by_number(self.max_player)
+        min_player = game_state.get_player_by_number(self.min_player)
+        if depth == 0 or not game_state.get_legal_moves(min_player) or game_state.is_on_height_3(max_player):
+            evaluation = self.evaluation_function(game_state, max_player, min_player)
             return evaluation, None
 
         legal_moves = game_state.get_legal_moves(player)
