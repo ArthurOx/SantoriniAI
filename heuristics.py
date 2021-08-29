@@ -1,11 +1,10 @@
 from board import *
 from tile import *
-import util
 
 BOARD_SIZE = 5
 
 
-def tile_value(player: Player):
+def tile_value(player: Player, enemy_player: Player):
     """
     The tiles in the middle have a higher value than those closer to edges.
     """
@@ -19,6 +18,10 @@ def tile_value(player: Player):
         score += tile_values[player.first_piece.tile.x][player.first_piece.tile.y]
     if player.second_piece:
         score += tile_values[player.second_piece.tile.x][player.second_piece.tile.y]
+    if enemy_player.first_piece:
+        score -= tile_values[enemy_player.first_piece.tile.x][enemy_player.first_piece.tile.y]
+    if enemy_player.second_piece:
+        score -= tile_values[enemy_player.second_piece.tile.x][enemy_player.second_piece.tile.y]
     return score
 
 
@@ -27,7 +30,7 @@ def height_heuristic(game_state: Board, current_player: Player, enemy_player: Pl
     score += game_state.get_height(current_player.second_piece.tile.x, current_player.second_piece.tile.y)
     score -= game_state.get_height(enemy_player.first_piece.tile.x, enemy_player.first_piece.tile.y)
     score -= game_state.get_height(enemy_player.second_piece.tile.x, enemy_player.second_piece.tile.y)
-    return max(score, 0)
+    return score
 
 
 def available_adjacent_tiles(game_state: Board, current_player: Player, enemy_player: Player,
@@ -35,21 +38,19 @@ def available_adjacent_tiles(game_state: Board, current_player: Player, enemy_pl
     """
     Returns the amount of available tiles for a player to move minus the available tiles to move for the enemy player
     """
-    first_player_adjacent_tiles = game_state.get_adjacent_tiles_of_player(current_player)
-    first_legal_moves = {move.tile: move for move in game_state.get_legal_moves(current_player)}
-    score = 0
-    for tile in first_player_adjacent_tiles:
-        if tile in first_legal_moves.keys():
-            score += 1
-            score += _get_climbing_potential(first_legal_moves[tile].piece.tile, tile) * climbing_potential_factor
+    # get all possible move squares
+    current_player_legal_moves = game_state.get_legal_moves(current_player)
+    first_legal_move_tiles = {move.tile for move in current_player_legal_moves}
+    score = len(first_legal_move_tiles)
+    for move in current_player_legal_moves:
+        score += _get_climbing_potential(move.piece.tile, move.tile) * climbing_potential_factor
 
-    second_player_adjacent_tiles = game_state.get_adjacent_tiles_of_player(enemy_player)
-    second_legal_moves = {move.tile: move for move in game_state.get_legal_moves(enemy_player)}
-    for tile in second_player_adjacent_tiles:
-        if tile in second_legal_moves.keys():
-            score -= 1
-            score -= _get_climbing_potential(second_legal_moves[tile].piece.tile, tile) * climbing_potential_factor
-    return max(score, 0)
+    enemy_player_legal_tiles = game_state.get_legal_moves(enemy_player)
+    second_legal_move_tiles = {move.tile: move for move in enemy_player_legal_tiles}
+    score -= len(second_legal_move_tiles)
+    for move in current_player_legal_moves:
+        score -= _get_climbing_potential(move.piece.tile, move.tile) * climbing_potential_factor
+    return score
 
 
 def _get_climbing_potential(from_tile: Tile, to_tile: Tile):
@@ -58,44 +59,66 @@ def _get_climbing_potential(from_tile: Tile, to_tile: Tile):
     """
     if to_tile.height - from_tile.height == 1:
         if to_tile.height == 3:
-            return 500
+            return 5
         return to_tile.height
     return 0
 
 
 def _win_heuristic(game_state: Board, current_player: Player, enemy_player: Player):
-    if game_state.is_winner(current_player):
-        return 1000
+    if game_state.is_on_height_3(current_player):
+        return 100
     if game_state.get_phase() == GamePhase.MOVE and not game_state.get_legal_moves(enemy_player):
-        return 1000
+        return 100
     return 0
 
 
-# def _check_piece_win_condition(game_state: Board, piece: Piece):
-#     if piece.tile.height == 2:
-#         enemy_adjacent_tiles = game_state.get_adjacent_tiles(piece.tile)
-#         for tile in enemy_adjacent_tiles:
-#             if tile.height
+def distance_heuristic(current_player: Player, enemy_player : Player):
+    player_score = 8
+    enemy_score = 8
+    cur_1 = current_player.first_piece.tile
+    cur_2 = current_player.second_piece.tile
+    enemy_1 = enemy_player.first_piece.tile
+    enemy_2 = enemy_player.second_piece.tile
+    player_score -= min(get_distance(cur_1, enemy_1), get_distance(cur_2, enemy_1))
+    player_score -= min(get_distance(cur_1, enemy_2), get_distance(cur_2, enemy_2))
+    enemy_score -= min(get_distance(cur_1, enemy_1), get_distance(cur_1, enemy_2))
+    enemy_score -= min(get_distance(cur_2, enemy_1), get_distance(cur_2, enemy_2))
+    return player_score - enemy_score
 
-# def height_heuristic_build(game_state: Board, current_player: Player, enemy_player: Player):
-#     """
-#     If there is a tile of height 2 nearby there are those possibilities:
-#      - If there is an enemy near this tile on height 2, we are giving a free win to the opponent if we build there
-#      - If there isn't, it might be safe to build there
-#     :return:
-#     """
-#     # Force block a winning opponent if possible
-#     if enemy_player.first_piece.tile.height == 2:
-#         enemy_adjacent_tiles = game_state.get_adjacent_tiles()
+
+def get_distance(tile_1: Tile, tile_2: Tile):
+    counter = 0
+    while (tile_1.x != tile_2.x) and (tile_1.x != tile_2.y):
+        if tile_1.x > tile_2.x:
+            tile_1.x -= 1
+            if tile_1.y > tile_2.y:
+                tile_1.y -= 1
+            elif tile_1.y < tile_2.y:
+                tile_1.y += 1
+        elif tile_1.x < tile_2.x:
+            tile_1.x += 1
+            if tile_1.y > tile_2.y:
+                tile_1.y -= 1
+            elif tile_1.y < tile_2.y:
+                tile_1.y += 1
+        elif tile_1.x == tile_2.x:
+            if tile_1.y > tile_2.y:
+                tile_1.y -= 1
+            elif tile_1.y < tile_2.y:
+                tile_1.y += 1
+        counter += 1
+    return counter
+
 
 def evaluation_function(game_state: Board, current_player: Player, enemy_player: Player):
     score = 0
     if game_state.get_phase() == GamePhase.SETUP:
-        return tile_value(current_player)
+        return tile_value(current_player, enemy_player)
     else:
-        score += tile_value(current_player)
-        if game_state.get_phase() == GamePhase.MOVE:
-            score += height_heuristic(game_state, current_player, enemy_player)
-            score += available_adjacent_tiles(game_state, current_player, enemy_player)
-            score += _win_heuristic(game_state, current_player, enemy_player)
+        score += 10 * tile_value(current_player, enemy_player)
+        score += 100 * height_heuristic(game_state, current_player, enemy_player)
+        climbing_potential_factor = 80
+        score += 20 * available_adjacent_tiles(game_state, current_player, enemy_player, climbing_potential_factor)
+        score += 200 * _win_heuristic(game_state, current_player, enemy_player)
+        score += 70 * distance_heuristic(current_player, enemy_player)
     return score

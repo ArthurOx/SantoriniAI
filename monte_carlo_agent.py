@@ -12,7 +12,7 @@ class MonteCarloAgent(Agent):
 
     def is_end_game(self, player_id, next_move_dict, first_move):
         for player in self.current_board.get_players():
-            if self.current_board.is_winner(player):
+            if self.current_board.is_on_height_3(player):
                 if player == player_id:
                     next_move_dict[first_move] += 1
                 return True
@@ -37,7 +37,7 @@ class MonteCarloAgent(Agent):
             return
         first_next_move = random.choice(list(next_move_dict.keys()))
         self.current_board.add_move(player, first_next_move)
-        if self.current_board.is_winner(player):
+        if self.current_board.is_on_height_3(player):
             next_move_dict[first_next_move] += 1
             return
         while not self.is_end_game(player, next_move_dict, first_next_move):
