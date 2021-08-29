@@ -2,6 +2,7 @@ from monte_carlo_agent import *
 from minimax_agent import *
 from random_agent import RandomAgent
 from heuristics import *
+# from test_minimax import *
 
 
 class GameEngine:
@@ -20,14 +21,23 @@ class GameEngine:
         move_1 = agent_1.get_action(self.board, player_1)
         self.board.add_move(player_1, move_1, save_file=save_file)
         print(self.board)
+
         move_2 = agent_1.get_action(self.board, player_1)
         self.board.add_move(player_1, move_2, save_file=save_file)
         print(self.board)
 
         # Setup p2
+        # legal_moves = self.board.get_legal_moves(player_2)
+        # if not legal_moves:
+        #     return []
+        # move_3 = random.choice(legal_moves)
         move_3 = agent_2.get_action(self.board, player_2)
         self.board.add_move(player_2, move_3, save_file=save_file)
         print(self.board)
+        # legal_moves = self.board.get_legal_moves(player_2)
+        # if not legal_moves:
+        #     return []
+        # move_4 = random.choice(legal_moves)
         move_4 = agent_2.get_action(self.board, player_2)
         self.board.add_move(player_2, move_4, save_file=save_file)
 
@@ -65,15 +75,23 @@ class GameEngine:
             current_agent = agent_2 if current_agent == agent_1 else agent_1
             count_moves += 1
 
-    def versus_multiple_rounds(self, agent_1: Agent, agent_2: Agent, rounds: int):
+    def versus_multiple_rounds(self, agent_1: Agent, agent_2: Agent, rounds: int, reset_1=False, reset_2=False):
         agent_1_wins = 0
         agent_2_wins = 0
+        counter = 1
         for _ in range(rounds):
             result = self.play_agents_versus(agent_1, agent_2, show_messages=False, show_board=True)
             if result.number == 1:
                 agent_1_wins += 1
             else:
                 agent_2_wins += 1
+            # todo
+            if reset_1 is True:
+                agent_1.reset_minimax()
+            if reset_2 is True:
+                agent_2.reset_minimax()
+            print(f"Rounds: {counter}. A1 {agent_1} Wins: {agent_1_wins}, A2 {agent_2} Wins: {agent_2_wins}")
+            counter += 1
         print(f"Rounds: {rounds}. A1 {agent_1} Wins: {agent_1_wins}, A2 {agent_2} Wins: {agent_2_wins}")
 
 

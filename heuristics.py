@@ -70,15 +70,52 @@ def _win_heuristic(game_state: Board, current_player: Player, enemy_player: Play
         return 100
     return 0
 
+def distance_heuristic(current_player: Player, enemy_player : Player):
+    player_score = 8
+    enemy_score = 8
+    cur_1 = current_player.first_piece.tile
+    cur_2 = current_player.second_piece.tile
+    enemy_1 = enemy_player.first_piece.tile
+    enemy_2 = enemy_player.second_piece.tile
+    player_score -= min(get_distance(cur_1, enemy_1), get_distance(cur_2, enemy_1))
+    player_score -= min(get_distance(cur_1, enemy_2), get_distance(cur_2, enemy_2))
+    enemy_score -= min(get_distance(cur_1, enemy_1), get_distance(cur_1, enemy_2))
+    enemy_score -= min(get_distance(cur_2, enemy_1), get_distance(cur_2, enemy_2))
+    return player_score - enemy_score
+
+
+def get_distance(tile_1: Tile, tile_2: Tile):
+    counter = 0
+    while (tile_1.x != tile_2.x) and (tile_1.x != tile_2.y):
+        if tile_1.x > tile_2.x:
+            tile_1.x -= 1
+            if tile_1.y > tile_2.y:
+                tile_1.y -= 1
+            elif tile_1.y < tile_2.y:
+                tile_1.y += 1
+        elif tile_1.x < tile_2.x:
+            tile_1.x += 1
+            if tile_1.y > tile_2.y:
+                tile_1.y -= 1
+            elif tile_1.y < tile_2.y:
+                tile_1.y += 1
+        elif tile_1.x == tile_2.x:
+            if tile_1.y > tile_2.y:
+                tile_1.y -= 1
+            elif tile_1.y < tile_2.y:
+                tile_1.y += 1
+        counter += 1
+    return counter
 
 def evaluation_function(game_state: Board, current_player: Player, enemy_player: Player):
     score = 0
     if game_state.get_phase() == GamePhase.SETUP:
         return tile_value(current_player, enemy_player)
     else:
-        score += tile_value(current_player, enemy_player)
+        score += 10 * tile_value(current_player, enemy_player)
         score += 100 * height_heuristic(game_state, current_player, enemy_player)
-        climbing_potential_factor = 50  # test this number
+        climbing_potential_factor = 80
         score += 20 * available_adjacent_tiles(game_state, current_player, enemy_player, climbing_potential_factor)
         score += 200 * _win_heuristic(game_state, current_player, enemy_player)
+        score += 70 * distance_heuristic(current_player, enemy_player)
     return score
