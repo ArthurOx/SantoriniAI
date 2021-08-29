@@ -81,7 +81,7 @@ if __name__ == "__main__":
     game = GameEngine()
     random_agent_1 = RandomAgent()
     random_agent_2 = RandomAgent()
-    with open('text.log', 'w+') as f:
+    with open('renderer/text.log', 'w+') as f:
         winner = game.play_agents_versus(random_agent_1, random_agent_2, True, save_file=f)
         print(f"Player {winner} won!")
     # game.versus_multiple_rounds(random_agent_1, random_agent_2, 1000)
