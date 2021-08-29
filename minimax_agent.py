@@ -3,6 +3,9 @@ from agent import Agent
 from heuristics import *
 import math
 
+SETUP = 0
+MOVE = 1
+BUILD = 2
 
 class HeuristicSearchAgent(Agent):
     def __init__(self, evaluation_function, depth=2):
@@ -43,7 +46,11 @@ class MinMax(HeuristicSearchAgent):
     def minimax_helper(self, game_state: Board, player: Player, depth):
         max_player = game_state.get_player_by_number(self.max_player)
         min_player = game_state.get_player_by_number(self.min_player)
-        if depth == 0 or not game_state.get_legal_moves(min_player) or game_state.is_on_height_3(max_player):
+
+        if game_state.get_phase() is not GamePhase.SETUP and not game_state.get_legal_moves(min_player):
+            evaluation = self.evaluation_function(game_state, max_player, min_player)
+            return evaluation, None
+        elif depth == 0 or game_state.is_on_height_3(max_player):
             evaluation = self.evaluation_function(game_state, max_player, min_player)
             return evaluation, None
 
@@ -85,6 +92,10 @@ class MinMax(HeuristicSearchAgent):
                         max_move, max_build = move, build
             return evaluation, max_move, max_build
 
+    def reset_minimax(self):
+        self.build_action = None
+        self.move_action = None
+
     def __str__(self):
         return "Minimax Agent"
 
@@ -119,10 +130,12 @@ class AlphaBeta(HeuristicSearchAgent):
     def alpha_beta_helper(self, game_state, player: Player, depth, alpha, beta):
         max_player = game_state.get_player_by_number(self.max_player)
         min_player = game_state.get_player_by_number(self.min_player)
-        if depth == 0 or not game_state.get_legal_moves(min_player) or game_state.is_on_height_3(max_player):
+        if depth == 0 or game_state.is_on_height_3(max_player):
             evaluation = self.evaluation_function(game_state, max_player, min_player)
             return evaluation, None
-
+        elif game_state.get_phase() is not GamePhase.SETUP and not game_state.get_legal_moves(min_player):
+            evaluation = self.evaluation_function(game_state, max_player, min_player)
+            return evaluation, None
         legal_moves = game_state.get_legal_moves(player)
         if not legal_moves:
             return 0, None
@@ -175,3 +188,7 @@ class AlphaBeta(HeuristicSearchAgent):
 
     def __str__(self):
         return "Alpha Beta Agent"
+
+    def reset_minimax(self):
+        self.build_action = None
+        self.move_action = None
