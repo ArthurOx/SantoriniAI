@@ -53,12 +53,14 @@ class Board:
     def get_phase(self):
         return self._phase
 
-    def add_move(self, player: Player, move: Move, on_copy=True):
+    def add_move(self, player: Player, move: Move, on_copy=True, save_file=None):
         if on_copy:
             player = self.get_player_by_number(player.number)
             move = copy(move)
         if not self.is_action_valid(player, move):
             raise ValueError(f"Move [{move}] is not allowed")
+        if save_file:
+            self.record_gameplay(player, move, save_file)
 
         if self._phase == GamePhase.SETUP:
             self.do_setup(player, move)
@@ -72,6 +74,25 @@ class Board:
         elif self._phase == GamePhase.BUILD:
             self._phase = GamePhase.MOVE
             self.do_build(player, move)
+
+    def record_gameplay(self, player, move, save_file):
+        if self._phase == GamePhase.SETUP:
+            save_file.write(f'Setup: player {player}\n')
+            if player.first_piece is None:
+                save_file.write(f'p{player}1\t{move.x}\t{move.y}\t{self._board[move.x, move.y].height}\n')
+            else:
+                save_file.write(f'p{player}2\t{move.x}\t{move.y}\t{self._board[move.x, move.y].height}\n')
+
+        if self._phase == GamePhase.MOVE:
+            save_file.write(f'Move: player {player}\n')
+            if move.piece == player.first_piece:
+                save_file.write(f'p{player}1\t{move.x}\t{move.y}\t{self._board[move.x, move.y].height}\n')
+            else:
+                save_file.write(f'p{player}2\t{move.x}\t{move.y}\t{self._board[move.x, move.y].height}\n')
+
+        if self._phase == GamePhase.BUILD:
+            save_file.write(f'Build: player {player}\n')
+            save_file.write(f'build\t{move.x}\t{move.y}\t{self._board[move.x, move.y].height + 1}\n')
 
     def is_action_valid(self, player: Player, move: Move):
         if self._phase == GamePhase.SETUP:
