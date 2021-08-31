@@ -37,7 +37,7 @@ def _first_agent_alpha_beta_provider(args):
 
 
 def _first_agent_alpha_beta_parser(base):
-    base.add_argument('--agent1-depth', type=int, help='The depth of the search to be performed', default=4)
+    base.add_argument('--agent1-depth', type=int, help='The depth of the search to be performed', default=2)
 
 
 def _second_agent_alpha_beta_provider(args):
@@ -45,7 +45,7 @@ def _second_agent_alpha_beta_provider(args):
 
 
 def _second_agent_alpha_beta_parser(base):
-    base.add_argument('--agent2-depth', type=int, help='The depth of the search to be performed', default=4)
+    base.add_argument('--agent2-depth', type=int, help='The depth of the search to be performed', default=2)
 
 
 def _first_agent_monte_carlo_provider(args):
