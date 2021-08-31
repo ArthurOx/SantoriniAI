@@ -103,7 +103,7 @@ class GameEngine:
         print(f"Rounds: {rounds}. A1 {agent_1} Wins: {agent_1_wins}, A2 {agent_2} Wins: {agent_2_wins}")
 
 
-def train(alpha, epsilon, gamma, episodes):
+def train(epsilon=0.05, gamma=0.8, alpha=0.2, episodes=0):
     scores = []
     learning_agent = QLearningAgent(epsilon, gamma, alpha, episodes)
     for i in range(episodes):
@@ -122,7 +122,7 @@ def tune(alphas, epsilons, gammas, episodes=2000):
     for alpha in alphas:
         for epsilon in epsilons:
             for gamma in gammas:
-                title = f'α: {alpha}, ε: {epsilon}, γ: {gamma}'
+                title = f'a: {alpha}, e: {epsilon}, g: {gamma}'
                 print('-' * (21 + len(title)) + f'\nTraining with values {title}\n' + '-' * (21 + len(title)))
                 scores[title] = train(alpha, epsilon, gamma, episodes)
 
